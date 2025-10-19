@@ -1,14 +1,22 @@
 import { useState } from "react";
-import service1 from "@/assets/service-1.jpg";
-import service2 from "@/assets/service-2.jpg";
-import service3 from "@/assets/service-3.jpg";
-import heroImage from "@/assets/hero-dreadlocks.jpg";
+import gallery1 from "@/assets/gallery-1.jpg";
+import gallery2 from "@/assets/gallery-2.jpg";
+import gallery3 from "@/assets/gallery-3.jpg";
+import gallery4 from "@/assets/gallery-4.jpg";
+import gallery5 from "@/assets/gallery-5.jpg";
+import gallery6 from "@/assets/gallery-6.jpg";
+import gallery7 from "@/assets/gallery-7.jpg";
+import gallery8 from "@/assets/gallery-8.jpg";
 
 const galleryImages = [
-  { src: service1, alt: "Création de dreadlocks professionnelle" },
-  { src: service2, alt: "Entretien et retouches de dreadlocks" },
-  { src: service3, alt: "Coloration créative de dreadlocks" },
-  { src: heroImage, alt: "Style élégant de dreadlocks" },
+  { src: gallery1, alt: "Dreadlocks auburn bouclés" },
+  { src: gallery2, alt: "Dreadlocks noirs tressés" },
+  { src: gallery3, alt: "Dreadlocks bicolores avec effet ombré" },
+  { src: gallery4, alt: "Style dreadlocks homme avec fade" },
+  { src: gallery5, alt: "Dreadlocks blonds en queue de cheval" },
+  { src: gallery6, alt: "Dreadlocks naturels noirs" },
+  { src: gallery7, alt: "Dreadlocks colorés rouge et noir" },
+  { src: gallery8, alt: "Coiffure dreadlocks auburn courts" },
 ];
 
 const Gallery = () => {
@@ -27,6 +35,7 @@ const Gallery = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+
           {galleryImages.map((image, index) => (
             <div
               key={index}

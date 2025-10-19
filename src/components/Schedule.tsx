@@ -59,9 +59,9 @@ const Schedule = () => {
             </CardContent>
           </Card>
 
-          <div className="mt-8 text-center p-6 bg-accent/10 rounded-lg border border-accent/20">
-            <p className="text-foreground font-medium">
-              💡 <span className="text-primary font-bold">Astuce :</span> Nous vous recommandons de prendre rendez-vous à l'avance pour garantir votre créneau préféré
+          <div className="mt-8 text-center p-6 bg-primary/10 rounded-lg border-2 border-primary/40">
+            <p className="text-primary font-semibold text-lg">
+              💡 <span className="font-bold">Astuce :</span> Nous vous recommandons de prendre rendez-vous à l'avance pour garantir votre créneau préféré
             </p>
           </div>
         </div>
