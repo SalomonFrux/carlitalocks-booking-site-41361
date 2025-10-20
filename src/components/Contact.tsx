@@ -57,6 +57,7 @@ const Contact = () => {
                 <MapPin className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
                 <div>
                   <p className="font-semibold text-foreground">Institut Carlitalocks</p>
+                  <p className="text-muted-foreground">Djidjole 6ème arrondissement, dans le von de l'église Zion-to</p>
                   <p className="text-muted-foreground">Lomé, Togo</p>
                 </div>
               </div>

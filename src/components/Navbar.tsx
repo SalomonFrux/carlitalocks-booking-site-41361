@@ -21,7 +21,7 @@ const Navbar = () => {
           <div className="flex items-center gap-3">
             <img src={logo} alt="Carlitalocks Logo" className="h-12 md:h-14" />
             <span className="hidden md:inline text-sm text-muted-foreground">
-              Institut #1 des Dreadlocks
+              Institut de coiffure
             </span>
           </div>
 
@@ -49,6 +49,12 @@ const Navbar = () => {
               className="text-foreground hover:text-primary transition-colors"
             >
               Horaires
+            </button>
+            <button
+              onClick={() => scrollToSection("conseils")}
+              className="text-foreground hover:text-primary transition-colors"
+            >
+              Conseils
             </button>
             <Button
               onClick={() => scrollToSection("contact")}
@@ -92,6 +98,12 @@ const Navbar = () => {
               className="text-left text-foreground hover:text-primary transition-colors py-2"
             >
               Horaires
+            </button>
+            <button
+              onClick={() => scrollToSection("conseils")}
+              className="text-left text-foreground hover:text-primary transition-colors py-2"
+            >
+              Conseils
             </button>
             <Button
               onClick={() => scrollToSection("contact")}

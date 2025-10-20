@@ -34,16 +34,16 @@ const Gallery = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-
-          {galleryImages.map((image, index) => (
+        <div className="relative overflow-hidden max-w-7xl mx-auto">
+          <div className="flex gap-6 animate-scroll-horizontal">
+          {[...galleryImages, ...galleryImages].map((image, index) => (
             <div
               key={index}
-              className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-gold transition-all duration-300 cursor-pointer animate-fade-in"
-              style={{ animationDelay: `${index * 0.1}s` }}
-              onClick={() => setSelectedImage(index)}
+              className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-gold transition-all duration-300 cursor-pointer flex-shrink-0"
+              style={{ width: '300px', height: '300px' }}
+              onClick={() => setSelectedImage(index % galleryImages.length)}
             >
-              <div className="aspect-square overflow-hidden">
+              <div className="w-full h-full overflow-hidden">
                 <img
                   src={image.src}
                   alt={image.alt}
@@ -55,6 +55,7 @@ const Gallery = () => {
               </div>
             </div>
           ))}
+          </div>
         </div>
 
         {selectedImage !== null && (
