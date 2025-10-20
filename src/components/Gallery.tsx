@@ -25,7 +25,7 @@ const Gallery = () => {
   return (
     <section id="galerie" className="py-20 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12 animate-fade-in">
+      <div className="text-center mb-12 animate-fade-in">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
             Notre Galerie
           </h2>
@@ -34,27 +34,47 @@ const Gallery = () => {
           </p>
         </div>
 
-        <div className="relative overflow-hidden max-w-7xl mx-auto">
-          <div className="flex gap-6 animate-scroll-horizontal">
-          {[...galleryImages, ...galleryImages].map((image, index) => (
-            <div
-              key={index}
-              className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-gold transition-all duration-300 cursor-pointer flex-shrink-0"
-              style={{ width: '300px', height: '300px' }}
-              onClick={() => setSelectedImage(index % galleryImages.length)}
-            >
-              <div className="w-full h-full overflow-hidden">
-                <img
-                  src={image.src}
-                  alt={image.alt}
-                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-                <p className="text-white p-4 text-sm font-medium">{image.alt}</p>
-              </div>
+        <div className="relative overflow-hidden max-w-4xl mx-auto h-[600px]">
+          <div className="grid grid-cols-2 gap-4">
+            {/* Colonne gauche - défilement vers le haut */}
+            <div className="flex flex-col gap-4 animate-scroll-up">
+              {[...galleryImages.slice(0, 4), ...galleryImages.slice(0, 4)].map((image, index) => (
+                <div
+                  key={`left-${index}`}
+                  className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-gold transition-all duration-300 cursor-pointer"
+                  onClick={() => setSelectedImage(index % 4)}
+                >
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    className="w-full h-[280px] object-cover transform group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                    <p className="text-white p-4 text-sm font-medium">{image.alt}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+            
+            {/* Colonne droite - défilement vers le bas */}
+            <div className="flex flex-col gap-4 animate-scroll-down">
+              {[...galleryImages.slice(4, 8), ...galleryImages.slice(4, 8)].map((image, index) => (
+                <div
+                  key={`right-${index}`}
+                  className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-gold transition-all duration-300 cursor-pointer"
+                  onClick={() => setSelectedImage((index % 4) + 4)}
+                >
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    className="w-full h-[280px] object-cover transform group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                    <p className="text-white p-4 text-sm font-medium">{image.alt}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
