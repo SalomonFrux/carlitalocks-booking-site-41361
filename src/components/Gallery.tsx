@@ -34,47 +34,45 @@ const Gallery = () => {
           </p>
         </div>
 
-        <div className="relative overflow-hidden max-w-4xl mx-auto h-[600px]">
-          <div className="grid grid-cols-2 gap-4">
-            {/* Colonne gauche - défilement vers le haut */}
-            <div className="flex flex-col gap-4 animate-scroll-up">
-              {[...galleryImages.slice(0, 4), ...galleryImages.slice(0, 4)].map((image, index) => (
-                <div
-                  key={`left-${index}`}
-                  className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-gold transition-all duration-300 cursor-pointer"
-                  onClick={() => setSelectedImage(index % 4)}
-                >
-                  <img
-                    src={image.src}
-                    alt={image.alt}
-                    className="w-full h-[280px] object-cover transform group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-                    <p className="text-white p-4 text-sm font-medium">{image.alt}</p>
-                  </div>
+        <div className="relative overflow-hidden w-full space-y-4">
+          {/* Première ligne - défilement de gauche à droite */}
+          <div className="flex gap-4 animate-scroll-left-to-right">
+            {[...galleryImages.slice(0, 4), ...galleryImages.slice(0, 4)].map((image, index) => (
+              <div
+                key={`top-${index}`}
+                className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-gold transition-all duration-300 cursor-pointer flex-shrink-0"
+                onClick={() => setSelectedImage(index % 4)}
+              >
+                <img
+                  src={image.src}
+                  alt={image.alt}
+                  className="w-[350px] h-[280px] object-cover transform group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                  <p className="text-white p-4 text-sm font-medium">{image.alt}</p>
                 </div>
-              ))}
-            </div>
-            
-            {/* Colonne droite - défilement vers le bas */}
-            <div className="flex flex-col gap-4 animate-scroll-down">
-              {[...galleryImages.slice(4, 8), ...galleryImages.slice(4, 8)].map((image, index) => (
-                <div
-                  key={`right-${index}`}
-                  className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-gold transition-all duration-300 cursor-pointer"
-                  onClick={() => setSelectedImage((index % 4) + 4)}
-                >
-                  <img
-                    src={image.src}
-                    alt={image.alt}
-                    className="w-full h-[280px] object-cover transform group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-                    <p className="text-white p-4 text-sm font-medium">{image.alt}</p>
-                  </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Deuxième ligne - défilement de droite à gauche */}
+          <div className="flex gap-4 animate-scroll-right-to-left">
+            {[...galleryImages.slice(4, 8), ...galleryImages.slice(4, 8)].map((image, index) => (
+              <div
+                key={`bottom-${index}`}
+                className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-gold transition-all duration-300 cursor-pointer flex-shrink-0"
+                onClick={() => setSelectedImage((index % 4) + 4)}
+              >
+                <img
+                  src={image.src}
+                  alt={image.alt}
+                  className="w-[350px] h-[280px] object-cover transform group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                  <p className="text-white p-4 text-sm font-medium">{image.alt}</p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
 
