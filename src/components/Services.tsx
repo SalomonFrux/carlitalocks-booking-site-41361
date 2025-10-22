@@ -90,6 +90,40 @@ const serviceCategories = [
       { name: "Mise en plis sur locks longues (40 cm)", price: "120 €", duration: "1 h 10", description: "Bigoudis flexi rod. Compter environ 1h de séchage en plus. Cette prestation ne comprend pas le shampooing." },
     ]
   },
+  {
+    title: "I. Installation de locks",
+    icon: Scissors,
+    services: [
+      { name: "Locks Consultation", price: "10 000 F CFA", duration: "1 h", description: "Consultation pour définir le type d'installation adapté à vos cheveux et vos besoins." },
+      { name: "Départ en Twist (Vanilles)", price: "à partir de 20 000 F CFA", duration: "5 h", description: "Installation de locks par la méthode des vanilles." },
+      { name: "Départ au Crochet Instantané", price: "à partir de 20 000 F CFA", duration: "5 h", description: "Installation de locks au crochet pour une formation instantanée." },
+      { name: "Départ Sisterlocks", price: "à partir de 50 000 F CFA", duration: "1 à 2 jours", description: "Installation de Sisterlocks, technique précise et délicate." },
+      { name: "Départ Microlocks", price: "à partir de 50 000 F CFA", duration: "1 à 2 jours", description: "Installation de Microlocks pour un résultat fin et élégant." },
+    ]
+  },
+  {
+    title: "II. Services Complémentaires - Resserage de locks",
+    icon: RotateCcw,
+    services: [
+      { name: "Resserage 1-100 Locks", price: "7 000 F CFA", duration: "2 h 30", description: "Resserage pour 1 à 100 locks." },
+      { name: "Resserage 101-250 Locks", price: "10 000 F CFA", duration: "3 h", description: "Resserage pour 101 à 250 locks." },
+      { name: "Resserage 251-325 Locks", price: "13 000 F CFA", duration: "3 h 30", description: "Resserage pour 251 à 325 locks." },
+      { name: "Resserage 326-400 Locks", price: "13 000 F CFA", duration: "4 h", description: "Resserage pour 326 à 400 locks." },
+      { name: "Resserage 401-500 Locks", price: "20 000 F CFA", duration: "4 h 30", description: "Resserage pour 401 à 500 locks." },
+      { name: "Resserage 501-600 Locks", price: "25 000 F CFA", duration: "5 h", description: "Resserage pour 501 à 600 locks." },
+      { name: "Resserage 600+ Locks", price: "22 000 F CFA", duration: "5 h 30", description: "Resserage pour plus de 600 locks." },
+    ]
+  },
+  {
+    title: "III. Autres prestations",
+    icon: Sparkles,
+    services: [
+      { name: "Réparation de Locks", price: "à partir de 7 000 F CFA", duration: "3 h", description: "Réparation de locks abîmées ou cassées." },
+      { name: "Extension de locks", price: "à partir de 30 000 F CFA", duration: "3 h", description: "Ajout d'extensions pour allonger vos locks." },
+      { name: "Coloration / Mèches", price: "à partir de 10 000 F CFA", duration: "1 h", description: "Coloration complète ou mèches pour personnaliser vos locks." },
+      { name: "Retrait des locks", price: "à partir de 20 000 F CFA", duration: "5 h", description: "Retrait soigneux des locks pour préserver vos cheveux naturels." },
+    ]
+  },
 ];
 
 const Services = () => {
