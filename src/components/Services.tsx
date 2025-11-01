@@ -3,42 +3,69 @@ import { Star, Scissors, Sparkles, Bath, RotateCcw, Wind, Heart, Palette } from 
 
 const serviceCategories = [
   {
-    title: "À la une",
+    title: "A LA UNE - Installation de locks",
     icon: Star,
     services: [
-      { name: "Resserage microlocks 201 à 300 LOCKS", price: "120 €", duration: "2 h", description: "Entre 200 et 300 locks. Prestation au crochet latching. Au delà de 2 cm ou 6 à 8 semaines de repousses un supplément vous sera facturé (60 à 100€)." },
-      { name: "Resserage microlocks 301 à 400 LOCKS", price: "140 €", duration: "3 h 30", description: "Resserage au crochet latching. Au delà de deux cm de repousses (6 à 8 semaines) prévoir un supplément à partir de 60€." },
-      { name: "Resserage microlocks 401 à 500 LOCKS", price: "160 €", duration: "3 h 30", description: "Prestation au crochet latching. Un entretien rigoureux de 6 semaines est obligatoire, au delà un supplément sera facturé à partir de 60€." },
-      { name: "Detox locks /microlocks", price: "70 €", duration: "1 h", description: "Soin spécialement formulé afin d'éliminer vos produits accumulés dans vos Locks. À faire une fois par an, comprend un masque hydratant, massage crânien et shampooing plus séchage." },
+      { name: "Locks Consultation", price: "10 000 F CFA", duration: "1 h", description: "Consultation pour définir le type d'installation adapté à vos cheveux et vos besoins." },
+      { name: "Départ en Twist (Vanilles)", price: "à partir de 20 000 F CFA", duration: "5 h", description: "Installation de locks par la méthode des vanilles." },
+      { name: "Départ au Crochet Instantané", price: "à partir de 20 000 F CFA", duration: "5 h", description: "Installation de locks au crochet pour une formation instantanée." },
+      { name: "Départ Sisterlocks", price: "à partir de 50 000 F CFA", duration: "1 à 2 jours", description: "Installation de Sisterlocks, technique précise et délicate." },
+    ]
+  },
+  {
+    title: "Installation Locks Fines (150 à 200 locks max)",
+    icon: Scissors,
+    services: [
+      { name: "Départ locks fine sur cheveux long", price: "500 €", duration: "6 h", description: "Départ Locks, cheveux longs. Moins de 200 locks crochet latching." },
+      { name: "Départ locks fine cheveux mi long", price: "400 €", duration: "4 h", description: "Départ crochet locks fine entre 150 et 200 locks." },
+      { name: "Départ Locks fine interlocks court", price: "300 €", duration: "3 h", description: "Départ interlocks crochet cheveux court." },
+    ]
+  },
+  {
+    title: "Installation Microlocks",
+    icon: Sparkles,
+    services: [
+      { name: "Installation Microlocks moyennes au crochet, cheveux long 30cm (300 à 350 locks)", price: "à partir de 1 000 €", duration: "11 h", description: "Installation au crochet latching 300, Max 30 cm de longueur. Prévoir la journée, cette installation comprend : Shampooing – Traçage - Crochet sur toute la longueur. Si vous avez des interrogations et afin de vous aider à préciser votre choix d'installation, l'institut Carlitalocks vous propose de réserver un diagnostic capillaire dont le montant sera déduit de votre prestation si l'installation est faite au studio." },
+      { name: "Installation Microlocks moyennes au crochet, cheveux Mi-long 20cm (300 à 350 locks)", price: "à partir de 800 €", duration: "8 h", description: "Installation Microlocks au crochet cheveux mi-long, jusqu'à 20 cm. Cette prestation comprend : shampooing - soin - Traçage - Installation au crochet sur toute la longueur. Prestation longue qui permet une meilleure formation des Locks. Si vous avez des interrogations et afin de vous aider à préciser votre choix d'installation, l'institut Carlitalocks vous propose de réserver un diagnostic capillaire dont le montant sera déduit de votre prestation si l'installation est faite au studio." },
+      { name: "Diagnostic capillaire avant installation", price: "25 €", duration: "20 min", description: "Diagnostic capillaire avant installation Microlocks 30 minutes : Définir un type de départ en fonction de vos cheveux, choix, méthode, nombre de locks problématique du cuir chevelu avant la pose. Prix déductible si installation faite à l'institut Carlitalocks. Merci de bien préparer vos questions." },
+    ]
+  },
+  {
+    title: "Installation Microlocks moyennes en vanille/twist",
+    icon: Wind,
+    services: [
+      { name: "Installation Microlocks moyennes en vanille, Cheveux long (300 à 350 locks)", price: "à partir de 700 €", duration: "7 h", description: "Installation Microlocks en vanille. La prestation comprend : shampooing - soin avant la pause - coupe des pointes si besoin - traçage - Vanilles + crochet latching sur les racines. Prix à partir de 700€. Installation réalisée à deux, prévoir 7 à 8h. Si vous avez des interrogations et afin de vous aider à préciser votre choix d'installation, l'institut Carlitalocks vous propose de réserver un diagnostic capillaire dont le montant sera déduit de votre prestation si l'installation est faite au studio." },
+      { name: "Installation Microlocks moyennes en vanille, Cheveux Mi-long (300 à 350 locks)", price: "à partir de 600 €", duration: "5 h", description: "Installation Carlitalocks en vanille. La prestation comprend : shampooing - soin avant la pause - coupe des pointes si besoin - traçage - Vanilles + crochet latching sur les racines. Si vous avez des interrogations et afin de vous aider à préciser votre choix d'installation, l'institut Carlitalocks vous propose de réserver un diagnostic capillaire dont le montant sera déduit de votre prestation si l'installation est faite au studio." },
+      { name: "Installation Microlocks moyennes en vanille, Cheveux court (300 à 350 locks)", price: "à partir de 500 €", duration: "4 h 30", description: "Installation Microlocks en vanille. La prestation comprend : shampooing - soin avant la pause - coupe des pointes si besoin - traçage - Vanilles + crochet latching sur les racines. Si vous avez des interrogations et afin de vous aider à préciser votre choix d'installation, l'institut Carlitalocks vous propose de réserver un diagnostic capillaire dont le montant sera déduit de votre prestation si l'installation est faite au studio." },
+      { name: "Diagnostic capillaire avant installation", price: "25 €", duration: "30 min", description: "Diagnostic capillaire avant installation Microlocks 30 minutes : Définir un type de départ en fonction de vos cheveux, choix, méthode, nombre de locks problématique du cuir chevelu avant la pose. Prix déductible si installation faite à l'institut Carlitalocks." },
+    ]
+  },
+  {
+    title: "Resserrage - MICROLOCKS",
+    icon: RotateCcw,
+    services: [
+      { name: "Resserage microlocks 201 à 300 LOCKS", price: "120 €", duration: "2 h", description: "MICROLOCKS entre 200 et 300 locks. Cette prestation est faite au crochet latching. Au delà de 2 cm ou 6 à 8 semaines de repousses un supplément vous sera facturé. Entre 60 et 100€ en fonction des repousses." },
+      { name: "Resserage microlocks 301 à 400 LOCKS", price: "140 €", duration: "3 h 30", description: "Resserage au crochet latching. ATTENTION : AU DELA DE DEUX CM DE REPOUSSES (6 à 8 semaines) PREVOIR UN SUPPLEMENT A PARTIR DE 60 EUROS." },
+      { name: "Resserage microlocks 401 à 500 LOCKS", price: "160 €", duration: "3 h 30", description: "Prestation effectuée au crochet latching. ATTENTION : UN ENTRETIEN RIGOUREUX DE 6 SEMAINES EST OBLIGATOIRE. AU DELA UN SUPPLEMENT SERA FACTURE A PARTIR DE 60€." },
+      { name: "Resserage microlocks 501 à 600 LOCKS", price: "200 €", duration: "3 h 30", description: "Prestation effectuée au crochet latching. ATTENTION : UN ENTRETIEN RIGOUREUX DE 6 SEMAINES EST OBLIGATOIRE. AU DELA UN SUPPLEMENT SERA FACTURE 50€ la demi-heure en plus." },
+      { name: "Detox locks /microlocks", price: "70 €", duration: "1 h", description: "Le soin Detox est un soin spécialement formulé afin d'éliminer vos produits accumulés dans vos Locks. C'est un soin qu'il faut faire une fois par an, ce soin comprend un masque hydratant, un massage crânien et un shampooing plus séchage." },
       { name: "Shampoing simple", price: "25 €", duration: "15 min", description: "Shampoing hydratant + massage crânien." },
     ]
   },
   {
-    title: "Installation Microlocks au crochet",
-    icon: Scissors,
+    title: "Resserrage - LOCKS FINES",
+    icon: RotateCcw,
     services: [
-      { name: "Installation Microlocks moyennes cheveux longs 30cm (300 à 350 locks)", price: "à partir de 1 000 €", duration: "11 h", description: "Installation au crochet latching. Comprend : shampooing, traçage, crochet sur toute la longueur. Prévoir la journée." },
-      { name: "Installation Microlocks moyennes cheveux mi-longs 20cm (300 à 350 locks)", price: "à partir de 800 €", duration: "8 h", description: "Comprend : shampooing, soin, traçage, installation au crochet sur toute la longueur. Prestation longue qui permet une meilleure formation des Locks." },
-      { name: "Diagnostic capillaire avant installation", price: "25 €", duration: "20 min", description: "Définir un type de départ en fonction de vos cheveux, choix, méthode, nombre de locks. Prix déductible si installation faite au studio." },
+      { name: "Resserrage LOCKS FINES entre 150 et 200 locks", price: "110 €", duration: "1 h 15", description: "LOCKS FINES entre 150 et 200 locks. Prestation faite au crochet latching. Au delà de 2 mois de repousses prévoir 50€ de supplément." },
+      { name: "Reprise LOCKS FINES moins de 150 locks / interlocks", price: "90 €", duration: "1 h", description: "LOCKS FINES. Reprise des racines en interlocks. Au delà de 2 à 3 mois de repousses un supplément à partir de 30€ est à prévoir." },
     ]
   },
   {
-    title: "Installation Microlocks en vanille/twist",
-    icon: Sparkles,
+    title: "TWIST",
+    icon: Wind,
     services: [
-      { name: "Installation Microlocks en vanille cheveux longs (300 à 350 locks)", price: "à partir de 700 €", duration: "7 h", description: "Comprend : shampooing, soin avant la pause, coupe des pointes si besoin, traçage, vanilles + crochet latching sur les racines. Installation réalisée à deux." },
-      { name: "Installation Microlocks en vanille cheveux mi-longs (300 à 350 locks)", price: "à partir de 600 €", duration: "5 h", description: "Comprend : shampooing, soin avant la pause, coupe des pointes si besoin, traçage, vanilles + crochet latching sur les racines." },
-      { name: "Installation Microlocks en vanille cheveux courts (300 à 350 locks)", price: "à partir de 500 €", duration: "4 h 30", description: "Comprend : shampooing, soin avant la pause, coupe des pointes si besoin, traçage, vanilles + crochet latching sur les racines." },
-      { name: "Diagnostic capillaire avant installation", price: "25 €", duration: "30 min", description: "Définir un type de départ en fonction de vos cheveux, choix, méthode, nombre de locks. Prix déductible si installation faite au studio." },
-    ]
-  },
-  {
-    title: "Installation Locks Fines (150 à 200 locks)",
-    icon: Scissors,
-    services: [
-      { name: "Départ locks fine cheveux longs", price: "500 €", duration: "6 h", description: "Moins de 200 locks, installation au crochet latching." },
-      { name: "Départ locks fine cheveux mi-longs", price: "400 €", duration: "4 h", description: "Entre 150 et 200 locks, crochet latching." },
-      { name: "Départ locks fine cheveux courts", price: "300 €", duration: "3 h", description: "Départ interlocks crochet cheveux courts." },
+      { name: "Retwist de 100 à 200 Locks", price: "150 €", duration: "1 h 30", description: "Concerne les personnes porteuses de Dread Locks. Tournage de locks avec ou sans gel. Ce soin comprend : shampoing - tournage de Locks - coiffure protectrice (2 à 4 Barel Twist ou nattes)." },
+      { name: "Retwist moins de 100 Locks", price: "120 €", duration: "1 h", description: "Concerne les personnes porteuses de Dread Locks. Tournage de locks avec ou sans gel. Ce soin comprend : shampoing - tournage de Locks - coiffure protectrice (2 à 4 Barel Twist ou nattes)." },
     ]
   },
   {
@@ -46,76 +73,32 @@ const serviceCategories = [
     icon: Bath,
     services: [
       { name: "Shampoing simple", price: "25 €", duration: "15 min", description: "Shampoing hydratant + massage crânien." },
-      { name: "Shampooing hydratant + Soins", price: "40 €", duration: "30 min", description: "Shampooing clarifiant suivi d'un shampooing hydratant ainsi qu'un soin sous serviette chaude de 15min." },
-      { name: "Detox locks /microlocks", price: "70 €", duration: "1 h", description: "Soin spécialement formulé afin d'éliminer vos produits accumulés. À faire une fois par an, comprend masque hydratant, massage crânien et shampooing plus séchage." },
-      { name: "Formule detox + hairspa", price: "180 €", duration: "1 h 40", description: "Detox locks, hairspa soin cuir chevelu, masque argile, massage crânien (bras, torse, cou)." },
-      { name: "Hair spa", price: "120 €", duration: "1 h 20", description: "Spa détente comprend : massage cobido, massage visage, gommage cuir chevelu, soins, massage crânien." },
-    ]
-  },
-  {
-    title: "Resserages",
-    icon: RotateCcw,
-    services: [
-      { name: "Resserage microlocks 501 à 600 LOCKS", price: "200 €", duration: "3 h 30", description: "Prestation au crochet latching. Un entretien rigoureux de 6 semaines est obligatoire, au delà un supplément sera facturé (50€ la demi-heure en plus)." },
-      { name: "Resserage microlocks 401 à 500 LOCKS", price: "160 €", duration: "3 h 30", description: "Prestation au crochet latching. Un entretien rigoureux de 6 semaines est obligatoire, au delà un supplément sera facturé à partir de 60€." },
-      { name: "Resserage microlocks 301 à 400 LOCKS", price: "140 €", duration: "3 h 30", description: "Resserage au crochet latching. Au delà de deux cm de repousses (6 à 8 semaines) prévoir un supplément à partir de 60€." },
-      { name: "Resserage microlocks 201 à 300 LOCKS", price: "120 €", duration: "2 h", description: "Entre 200 et 300 locks. Au delà de 2 cm ou 6 à 8 semaines de repousses un supplément vous sera facturé (60 à 100€ en fonction des repousses)." },
-      { name: "Resserrage LOCKS FINES entre 150 et 200 locks", price: "110 €", duration: "1 h 15", description: "Prestation au crochet latching. Au delà de 2 mois de repousses prévoir 50€ de supplément." },
-      { name: "Reprise LOCKS FINES moins de 150 locks / interlocks", price: "90 €", duration: "1 h", description: "Reprise des racines en interlocks. Au delà de 2 à 3 mois de repousses un supplément à partir de 30€ est à prévoir." },
-    ]
-  },
-  {
-    title: "Twist",
-    icon: Wind,
-    services: [
-      { name: "Retwist de 100 à 200 Locks", price: "150 €", duration: "1 h 30", description: "Comprend shampooing, tournage de Locks, coiffure protectrice (2 à 4 Barel Twist ou nattes)." },
-      { name: "Retwist moins de 100 Locks", price: "120 €", duration: "1 h", description: "Comprend shampooing, tournage de Locks, coiffure protectrice (2 à 4 Barel Twist ou nattes)." },
+      { name: "Shampooing hydratant + Soins", price: "40 €", duration: "30 min", description: "Cette prestation comprend un shampooing clarifiant suivi d'un shampooing hydratant ainsi qu'un soin sous serviette chaude de 15min." },
+      { name: "Detox locks /microlocks", price: "70 €", duration: "1 h", description: "Le soin Detox est un soin spécialement formulé afin d'éliminer vos produits accumulés dans vos Locks. C'est un soin qu'il faut faire une fois par an, ce soin comprend un masque hydratant, un massage crânien et un shampooing plus séchage." },
+      { name: "Formule detox +hairspa", price: "180 €", duration: "1 h 40", description: "Detox locks, Hairspa soin cuir chevelu, Masque argile, Massage crânien (bras, torse, cou)." },
+      { name: "Hair spa", price: "120 €", duration: "1 h 20", description: "Spa détente. Comprend : Massage cobido, Massage visage, Gommage cuir chevelu, Soins, Massage crânien." },
     ]
   },
   {
     title: "Coiffage",
     icon: Heart,
     services: [
-      { name: "Coiffure protectrice", price: "20 €", duration: "20 min", description: "Coiffure simple et élégante fortement conseillée avant maturation complète. 2 à 4 nattes collées." },
-      { name: "Chignon simple sur Microlocks", price: "35 €", duration: "30 min", description: "Pour une coiffure élégante et raffinée. Attention : le resserrage n'est pas compris dans la prestation." },
-      { name: "Chignon élaboré sur Microlocks", price: "60 €", duration: "45 min", description: "Pour vos évènements. Attention : cette prestation ne comprend pas le resserrage." },
+      { name: "Coiffure protectrice", price: "20 €", duration: "20 min", description: "Coiffure simple et élégante fortement conseillée avant maturation complète de vos locks. Elle permet de sublimer vos locks tout en limitant le risque de glissements. 2 à 4 nattes collées." },
+      { name: "Chignon simple sur Microlocks", price: "35 €", duration: "30 min", description: "Chignon simple sur Microlocks pour une coiffure élégante et raffinée. ATTENTION : le resserrage n'est pas compris dans la prestation." },
+      { name: "Chignon élaboré sur Microlocks", price: "60 €", duration: "45 min", description: "Chignon élaboré sur Microlocks pour vos évènements. ATTENTION : cette prestation ne comprend pas le resserrage." },
     ]
   },
   {
     title: "Mise en plis / Boucler ses locks",
     icon: Palette,
     services: [
-      { name: "Mise en plis sur locks courtes (20 cm)", price: "70 €", duration: "40 min", description: "Bigoudis / Flexy rod / Fil chenille. Compter environ 1h de séchage en plus. Cette prestation ne comprend pas le shampooing." },
-      { name: "Mise en plis sur locks mi-longues (30 cm)", price: "90 €", duration: "55 min", description: "Flexi rod / Fil chenille / Bigoudis. Compter environ 1h de séchage en plus. Cette prestation ne comprend pas le shampooing." },
-      { name: "Mise en plis sur locks longues (40 cm)", price: "120 €", duration: "1 h 10", description: "Bigoudis flexi rod. Compter environ 1h de séchage en plus. Cette prestation ne comprend pas le shampooing." },
+      { name: "Mise en plis sur locks courtes (20 cm)", price: "70 €", duration: "40 min", description: "Idéale pour un évènement, afin d'avoir un look différent dans vos Locks. Mise en plis bigoudis / Flexy rod / Fil chenille. Il faut compter environ 1h de séchage en plus du temps de prestation. Cette prestation ne comprend pas le shampooing. Cependant la coiffure est à réaliser sur cheveux humides, nous vous conseillons donc de réserver un shampoing pour un rendu optimal." },
+      { name: "Mise en plis sur locks mi longues (30 cm)", price: "90 €", duration: "55 min", description: "Mise en plis locks mi longue 30cm. Flexi rod / Fil chenille / Bigoudis. Il faut compter environ 1h de séchage en plus du temps de prestation. Cette prestation ne comprend pas le shampooing. Cependant la coiffure est à réaliser sur cheveux humides, nous vous conseillons donc de réserver un shampoing pour un rendu optimal." },
+      { name: "Mise en plis sur locks longues (40 cm)", price: "120 €", duration: "1 h 10", description: "Mise en plis cheveux long. Bigoudis flexi rod. Il faut compter environ 1h de séchage en plus du temps de prestation. Cette prestation ne comprend pas le shampooing. Cependant la coiffure est à réaliser sur cheveux humides, nous vous conseillons donc de réserver un shampoing pour un rendu optimal." },
     ]
   },
   {
-    title: "I. Installation de locks",
-    icon: Scissors,
-    services: [
-      { name: "Locks Consultation", price: "10 000 F CFA", duration: "1 h", description: "Consultation pour définir le type d'installation adapté à vos cheveux et vos besoins." },
-      { name: "Départ en Twist (Vanilles)", price: "à partir de 20 000 F CFA", duration: "5 h", description: "Installation de locks par la méthode des vanilles." },
-      { name: "Départ au Crochet Instantané", price: "à partir de 20 000 F CFA", duration: "5 h", description: "Installation de locks au crochet pour une formation instantanée." },
-      { name: "Départ Sisterlocks", price: "à partir de 50 000 F CFA", duration: "1 à 2 jours", description: "Installation de Sisterlocks, technique précise et délicate." },
-      { name: "Départ Microlocks", price: "à partir de 50 000 F CFA", duration: "1 à 2 jours", description: "Installation de Microlocks pour un résultat fin et élégant." },
-    ]
-  },
-  {
-    title: "II. Services Complémentaires - Resserage de locks",
-    icon: RotateCcw,
-    services: [
-      { name: "Resserage 1-100 Locks", price: "7 000 F CFA", duration: "2 h 30", description: "Resserage pour 1 à 100 locks." },
-      { name: "Resserage 101-250 Locks", price: "10 000 F CFA", duration: "3 h", description: "Resserage pour 101 à 250 locks." },
-      { name: "Resserage 251-325 Locks", price: "13 000 F CFA", duration: "3 h 30", description: "Resserage pour 251 à 325 locks." },
-      { name: "Resserage 326-400 Locks", price: "13 000 F CFA", duration: "4 h", description: "Resserage pour 326 à 400 locks." },
-      { name: "Resserage 401-500 Locks", price: "20 000 F CFA", duration: "4 h 30", description: "Resserage pour 401 à 500 locks." },
-      { name: "Resserage 501-600 Locks", price: "25 000 F CFA", duration: "5 h", description: "Resserage pour 501 à 600 locks." },
-      { name: "Resserage 600+ Locks", price: "22 000 F CFA", duration: "5 h 30", description: "Resserage pour plus de 600 locks." },
-    ]
-  },
-  {
-    title: "III. Autres prestations",
+    title: "Autres prestations",
     icon: Sparkles,
     services: [
       { name: "Réparation de Locks", price: "à partir de 7 000 F CFA", duration: "3 h", description: "Réparation de locks abîmées ou cassées." },
