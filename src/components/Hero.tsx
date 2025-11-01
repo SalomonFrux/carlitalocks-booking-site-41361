@@ -4,7 +4,7 @@ import heroImage from "@/assets/hero-dreadlocks.jpg";
 
 const Hero = () => {
   const handleWhatsAppClick = () => {
-    window.open("https://wa.me/22890000000", "_blank");
+    window.open("https://wa.me/22890583350", "_blank");
   };
 
   return (
