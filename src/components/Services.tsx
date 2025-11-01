@@ -111,59 +111,59 @@ const serviceCategories = [
 
 const Services = () => {
   return (
-    <section id="services" className="py-20 bg-muted/30">
+    <section id="services" className="py-12 md:py-20 bg-muted/30">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12 animate-fade-in">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+        <div className="text-center mb-8 md:mb-12 animate-fade-in">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4">
             Prestations
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
+          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-4 md:mb-6 px-4">
             Des prestations de qualité pour sublimer et entretenir vos dreadlocks
           </p>
           
           {/* Astuce mise en évidence */}
-          <div className="max-w-3xl mx-auto mb-8 bg-gradient-to-r from-primary/20 via-primary/30 to-primary/20 border-2 border-primary rounded-lg p-6 shadow-lg animate-pulse">
-            <p className="text-lg font-bold text-primary flex items-center justify-center gap-2">
-              <Star className="w-6 h-6" />
-              Astuce : Nous vous recommandons de prendre rendez-vous à l'avance pour garantir votre créneau préféré
-              <Star className="w-6 h-6" />
+          <div className="max-w-3xl mx-auto mb-6 md:mb-8 bg-gradient-to-r from-primary/20 via-primary/30 to-primary/20 border-2 border-primary rounded-lg p-4 md:p-6 shadow-lg animate-pulse">
+            <p className="text-sm md:text-lg font-bold text-primary flex flex-col sm:flex-row items-center justify-center gap-2">
+              <Star className="w-5 h-5 md:w-6 md:h-6" />
+              <span className="text-center">Astuce : Nous vous recommandons de prendre rendez-vous à l'avance pour garantir votre créneau préféré</span>
+              <Star className="w-5 h-5 md:w-6 md:h-6" />
             </p>
           </div>
         </div>
 
-        <div className="space-y-12 max-w-7xl mx-auto">
+        <div className="space-y-8 md:space-y-12 max-w-7xl mx-auto">
           {serviceCategories.map((category, categoryIndex) => (
             <div
               key={categoryIndex}
               className="animate-slide-in"
               style={{ animationDelay: `${categoryIndex * 0.1}s` }}
             >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <category.icon className="w-6 h-6 text-primary" />
+              <div className="flex items-center gap-3 mb-4 md:mb-6">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <category.icon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                 </div>
-                <h3 className="text-2xl md:text-3xl font-bold text-foreground">
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
                   {category.title}
                 </h3>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {category.services.map((service, serviceIndex) => (
                   <Card
                     key={serviceIndex}
                     className="hover:shadow-gold transition-all duration-300 hover:-translate-y-1"
                   >
-                    <CardHeader>
-                      <CardTitle className="text-lg leading-tight mb-2">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base md:text-lg leading-tight mb-2">
                         {service.name}
                       </CardTitle>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-bold text-primary text-xl">{service.price}</span>
-                        <span className="text-muted-foreground">{service.duration}</span>
+                      <div className="flex items-center justify-between text-sm flex-wrap gap-2">
+                        <span className="font-bold text-primary text-lg md:text-xl">{service.price}</span>
+                        <span className="text-muted-foreground text-xs md:text-sm">{service.duration}</span>
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
+                    <CardContent className="pt-0">
+                      <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
                         {service.description}
                       </p>
                     </CardContent>

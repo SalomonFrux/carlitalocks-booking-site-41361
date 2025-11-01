@@ -17,20 +17,20 @@ const Hero = () => {
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 animate-fade-in">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 md:mb-6 animate-fade-in leading-tight">
             Carlitalocks
           </h1>
-          <p className="text-xl md:text-2xl text-white/90 mb-4 animate-fade-in">
+          <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-3 md:mb-4 animate-fade-in">
             Institut de coiffure à Lomé
           </p>
-          <p className="text-lg md:text-xl text-white/80 mb-8 animate-fade-in">
+          <p className="text-base sm:text-lg md:text-xl text-white/80 mb-6 md:mb-8 animate-fade-in px-4">
             N°1 à Lomé dans les Dreadlocks, un cadre discret avec un traitement très personnalisé
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
+          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center animate-fade-in px-4">
             <Button
               onClick={handleWhatsAppClick}
               size="lg"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold text-lg px-8 py-6"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6"
             >
               <MessageCircle className="w-5 h-5 mr-2" />
               Prendre Rendez-vous
@@ -42,7 +42,7 @@ const Hero = () => {
               }}
               size="lg"
               variant="outline"
-              className="bg-white/10 text-white border-white/30 hover:bg-white/20 backdrop-blur-sm text-lg px-8 py-6"
+              className="bg-white/10 text-white border-white/30 hover:bg-white/20 backdrop-blur-sm text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6"
             >
               Découvrir nos services
             </Button>
