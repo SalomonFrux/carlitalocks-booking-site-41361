@@ -3,12 +3,12 @@ import { Clock, Calendar } from "lucide-react";
 
 const scheduleData = [
   { day: "Lundi", status: "Fermé", hours: null },
-  { day: "Mardi", status: "Ouvert", hours: "10h00 - 20h00" },
-  { day: "Mercredi", status: "Ouvert", hours: "08h00 - 20h00" },
-  { day: "Jeudi", status: "Ouvert", hours: "08h00 - 20h00" },
-  { day: "Vendredi", status: "Ouvert", hours: "08h00 - 20h00" },
-  { day: "Samedi", status: "Ouvert", hours: "08h00 - 20h00" },
-  { day: "Dimanche", status: "Fermé", hours: null },
+  { day: "Mardi", status: "Ouvert", hours: "08h30 - 20h00" },
+  { day: "Mercredi", status: "Ouvert", hours: "08h30 - 20h00" },
+  { day: "Jeudi", status: "Ouvert", hours: "08h30 - 20h00" },
+  { day: "Vendredi", status: "Ouvert", hours: "08h30 - 20h00" },
+  { day: "Samedi", status: "Ouvert", hours: "08h30 - 20h00" },
+  { day: "Dimanche", status: "Cas urgents", hours: "Sur rendez-vous" },
 ];
 
 const Schedule = () => {
@@ -39,6 +39,8 @@ const Schedule = () => {
                   className={`flex justify-between items-center p-4 rounded-lg transition-all animate-slide-in ${
                     item.status === "Fermé"
                       ? "bg-muted/50 opacity-60"
+                      : item.status === "Cas urgents"
+                      ? "bg-primary/10 hover:bg-primary/15"
                       : "bg-primary/5 hover:bg-primary/10"
                   }`}
                   style={{ animationDelay: `${index * 0.05}s` }}

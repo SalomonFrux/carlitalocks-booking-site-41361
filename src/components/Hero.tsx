@@ -21,7 +21,7 @@ const Hero = () => {
             Carlitalocks
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-3 md:mb-4 animate-fade-in">
-            Institut de coiffure à Lomé
+            Institut de dreadlocks à Lomé
           </p>
           <p className="text-base sm:text-lg md:text-xl text-white/80 mb-6 md:mb-8 animate-fade-in px-4">
             N°1 à Lomé dans les Dreadlocks, un cadre discret avec un traitement très personnalisé

@@ -7,10 +7,10 @@ const Footer = () => {
         <div className="text-center space-y-4">
           <h3 className="text-2xl font-bold text-primary">Carlitalocks</h3>
           <p className="text-secondary-foreground/80">
-            Institut de coiffure à Lomé
+            Institut de dreadlocks à Lomé
           </p>
           <p className="text-secondary-foreground/80 text-sm mt-2">
-            📍 Djidjole 6ème arrondissement, dans le von de l'église Zion-to
+            📍 Djidjolé — 2ᵉ rue à droite après le commissariat du 6ᵉ arrondissement
           </p>
           <div className="flex items-center justify-center gap-4 mt-4">
             <a 
