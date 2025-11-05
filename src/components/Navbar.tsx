@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Phone, Menu } from "lucide-react";
 import { useState } from "react";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo-carlitalocks.png";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,7 +21,7 @@ const Navbar = () => {
           <div className="flex items-center gap-3">
             <img src={logo} alt="Carlitalocks Logo" className="h-12 md:h-14" />
             <span className="hidden md:inline text-sm text-muted-foreground">
-              Institut de coiffure
+              Institut de dreadlocks
             </span>
           </div>
 
