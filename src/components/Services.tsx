@@ -305,8 +305,8 @@ const Services = () => {
               </h3>
 
               {category.hasWarning && category.warning && (
-                <div className="bg-destructive/10 border-2 border-destructive text-destructive-foreground p-4 rounded-lg mb-6">
-                  <p className="text-sm font-semibold leading-relaxed">
+                <div className="bg-warning/20 border-2 border-warning text-warning-foreground p-4 rounded-lg mb-6">
+                  <p className="text-sm font-bold leading-relaxed">
                     ⚠️ {category.warning}
                   </p>
                 </div>
