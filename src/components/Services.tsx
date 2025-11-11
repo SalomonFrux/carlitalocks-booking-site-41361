@@ -1,245 +1,289 @@
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-const serviceCategories = [
+type ServiceCategory = {
+  title: string;
+  hasWarning?: boolean;
+  warning?: string;
+  services: {
+    name: string;
+    price: string;
+    duration: string;
+    description: string;
+  }[];
+};
+
+const serviceCategories: ServiceCategory[] = [
   {
-    title: "Installation de Locks (Départs & Microlocks)",
+    title: "À LA UNE",
     services: [
       {
-        name: "Locks Consultation",
+        name: "Consultation sur mesure pour Départ locks avec Extension ou ajout d'extension sur locks existants",
         price: "10 000 F CFA",
         duration: "1 h",
-        description: "Consultation pour déterminer l'installation adaptée.",
+        description: "",
+      },
+    ],
+  },
+  {
+    title: "INSTALLATION MICROLOCKS MOYENNE EN VANILLE / TWISTS",
+    services: [
+      {
+        name: "Cheveux longs (300 à 350 locks)",
+        price: "À partir de 40 000 F CFA",
+        duration: "7h à 8h",
+        description: "",
       },
       {
-        name: "Départ en Twist",
-        price: "à partir de 20 000 F CFA",
-        duration: "5 h",
-        description: "Installation de locks par vanilles.",
+        name: "Cheveux Mi-longs (300 à 350 locks)",
+        price: "À partir de 35 000 F CFA",
+        duration: "5h",
+        description: "",
       },
       {
-        name: "Départ au Crochet Instantané",
-        price: "à partir de 20 000 F CFA",
-        duration: "5 h",
-        description: "Formation instantanée des locks.",
+        name: "Cheveux courts (300 à 350 locks)",
+        price: "À partir de 20 000 F CFA",
+        duration: "4h 30 min à 5 h",
+        description: "",
+      },
+    ],
+  },
+  {
+    title: "INSTALLATION LOCKS TRADITIONNELS AU CROCHET (80 à 150 LOCKS)",
+    services: [
+      {
+        name: "Cheveux longs",
+        price: "À partir de 30 000 F CFA",
+        duration: "6h",
+        description: "",
       },
       {
-        name: "Départ Sisterlocks",
-        price: "à partir de 50 000 F CFA",
+        name: "Cheveux mi-long",
+        price: "À partir de 25 000 F CFA",
+        duration: "5h",
+        description: "",
+      },
+      {
+        name: "Cheveux courts",
+        price: "À partir de 20 000 F CFA",
+        duration: "4h",
+        description: "",
+      },
+    ],
+  },
+  {
+    title: "INSTALLATION MINILOCKS OU FINES AU CROCHET INTERLOCKS (150 à 250 LOCKS)",
+    services: [
+      {
+        name: "Cheveux longs",
+        price: "À partir de 45 000 F CFA",
+        duration: "8h",
+        description: "",
+      },
+      {
+        name: "Cheveux Mi-long",
+        price: "À partir de 40 000 F CFA",
+        duration: "6h",
+        description: "",
+      },
+      {
+        name: "Cheveux courts",
+        price: "À partir de 35 000 F CFA",
+        duration: "5h",
+        description: "",
+      },
+    ],
+  },
+  {
+    title: "INSTALLATION MICROLOCKS MOYENNES AU CROCHÉ INTERLOCKS",
+    services: [
+      {
+        name: "Cheveux longs 30 cm (300 à 400 locks)",
+        price: "À partir de 70 000 F CFA",
+        duration: "12h",
+        description: "",
+      },
+      {
+        name: "Cheveux Mi-longs 20 cm (400 à 500 locks)",
+        price: "À partir de 60 000 F CFA",
+        duration: "10h",
+        description: "",
+      },
+      {
+        name: "Cheveux courts (300 à 400 locks)",
+        price: "À partir de 50 000 F CFA",
+        duration: "8h",
+        description: "",
+      },
+    ],
+  },
+  {
+    title: "INSTALLATION SISTERLOCKS AU CROCHET INTERLOCKS (400 à 600 locks)",
+    services: [
+      {
+        name: "Cheveux longs 30 cm",
+        price: "À partir de 100 000 F CFA",
         duration: "1 à 2 jours",
-        description: "Technique délicate et précise.",
+        description: "",
       },
       {
-        name: "Locks fines cheveux longs (150–200 locks)",
-        price: "500 €",
-        duration: "6 h",
-        description: "Crochet latching, cheveux longs.",
+        name: "Cheveux Mi-longs 20 cm",
+        price: "À partir de 100 000 F CFA",
+        duration: "36 h",
+        description: "",
       },
       {
-        name: "Locks fines cheveux mi-long",
-        price: "400 €",
-        duration: "4 h",
-        description: "Installation pour cheveux mi-longs.",
-      },
-      {
-        name: "Locks fines cheveux courts",
-        price: "300 €",
-        duration: "3 h",
-        description: "Installation pour cheveux courts.",
-      },
-      {
-        name: "Installation Microlocks crochet longs",
-        price: "à partir de 1 000 €",
-        duration: "11 h",
-        description: "Microlocks au crochet pour cheveux longs.",
-      },
-      {
-        name: "Installation Microlocks crochet mi-long",
-        price: "à partir de 800 €",
-        duration: "8 h",
-        description: "Microlocks au crochet pour cheveux mi-longs.",
-      },
-      {
-        name: "Microlocks vanilles longs",
-        price: "à partir de 700 €",
-        duration: "7 h",
-        description: "Microlocks en vanilles pour cheveux longs.",
-      },
-      {
-        name: "Microlocks vanilles mi-long",
-        price: "à partir de 600 €",
-        duration: "5 h",
-        description: "Microlocks en vanilles pour cheveux mi-longs.",
-      },
-      {
-        name: "Microlocks vanilles courts",
-        price: "à partir de 500 €",
-        duration: "4 h 30",
-        description: "Microlocks en vanilles pour cheveux courts.",
-      },
-      {
-        name: "Diagnostic capillaire",
-        price: "25 €",
-        duration: "20/30 min",
-        description: "Déduit si installation faite.",
+        name: "Cheveux courts 10 cm",
+        price: "À partir de 80 000 F CFA",
+        duration: "Une journée",
+        description: "",
       },
     ],
   },
   {
-    title: "Entretien / Resserrage",
+    title: "INSTALLATION LOCKS/MICROLOCKS AVEC EXTENSIONS",
     services: [
       {
-        name: "Resserrage Microlocks complet longs",
-        price: "à partir de 300 €",
-        duration: "8 h",
-        description: "Resserrage complet pour microlocks longs.",
-      },
-      {
-        name: "Resserrage Microlocks complet mi-long",
-        price: "à partir de 250 €",
-        duration: "6 h",
-        description: "Resserrage complet pour microlocks mi-longs.",
-      },
-      {
-        name: "Resserrage Microlocks complet courts",
-        price: "à partir de 200 €",
-        duration: "4 h",
-        description: "Resserrage complet pour microlocks courts.",
-      },
-      {
-        name: "Resserrage Locks fines complet longs",
-        price: "200 €",
-        duration: "4 h",
-        description: "Resserrage complet pour locks fines longs.",
-      },
-      {
-        name: "Resserrage Locks fines complet mi-long",
-        price: "150 €",
-        duration: "3 h",
-        description: "Resserrage complet pour locks fines mi-longs.",
-      },
-      {
-        name: "Resserrage Locks fines complet courts",
-        price: "100 €",
-        duration: "2 h",
-        description: "Resserrage complet pour locks fines courts.",
-      },
-      {
-        name: "Retwist complet longs",
-        price: "80 €",
-        duration: "3 h",
-        description: "Retwist complet pour locks longs.",
-      },
-      {
-        name: "Retwist complet mi-long",
-        price: "60 €",
-        duration: "2 h",
-        description: "Retwist complet pour locks mi-longs.",
-      },
-      {
-        name: "Retwist complet courts",
-        price: "40 €",
-        duration: "1 h 30",
-        description: "Retwist complet pour locks courts.",
+        name: "Sur devis",
+        price: "",
+        duration: "",
+        description: "",
       },
     ],
   },
   {
-    title: "Soins & Traitements",
+    title: "RESSERRAGE LOCKS AU CROCHET INTERLOCKS",
+    hasWarning: true,
+    warning:
+      "Clause Importante (Repousse) : Si la repousse de vos locks dépasse deux à trois mois, le prix initialement indiqué pourrait augmenter en raison du travail supplémentaire nécessaire (à l'appréciation du technicien).",
     services: [
       {
-        name: "Shampooing simple",
-        price: "20 €",
-        duration: "30 min",
-        description: "Nettoyage en profondeur des locks.",
+        name: "Resserrage locks traditionnel moins de 150 locks",
+        price: "À partir de 8 000 F CFA",
+        duration: "2h30",
+        description: "",
       },
       {
-        name: "Shampooing + soin",
-        price: "35 €",
+        name: "Resserrage minilocks entre 150 et 200 locks",
+        price: "À partir de 8 000 F CFA",
+        duration: "3h",
+        description: "",
+      },
+      {
+        name: "Resserrage microlocks 201 à 300 Locks",
+        price: "À partir de 8 000 F CFA",
+        duration: "2h30",
+        description: "",
+      },
+      {
+        name: "Resserrage microlocks entre 301 à 400 locks",
+        price: "À partir de 10 000 F CFA",
+        duration: "3h30",
+        description: "",
+      },
+      {
+        name: "Resserrage microlocks 401 à 500 locks",
+        price: "À partir de 15 000 F CFA",
+        duration: "3h30",
+        description: "",
+      },
+      {
+        name: "Resserrage sisterlocks 501 à 600 Locks",
+        price: "À partir de 20 000 F CFA",
+        duration: "4h",
+        description: "",
+      },
+    ],
+  },
+  {
+    title: "TWIST",
+    services: [
+      {
+        name: "Retwist (100 à 200 locks)",
+        price: "À partir de 10 000 F CFA",
+        duration: "2h",
+        description: "Concerne les personnes porteuses de dreadlocks. Tournage de locks avec ou sans gel.",
+      },
+      {
+        name: "Retwist moins de 100 Locks",
+        price: "À partir de 8 000 F CFA",
+        duration: "1h30",
+        description: "Concerne les personnes porteuses de dreadlocks. Tournage de locks avec ou sans gel.",
+      },
+    ],
+  },
+  {
+    title: "SOINS LOCKS",
+    services: [
+      {
+        name: "Shampoing simple (Adulte)",
+        price: "À partir de 2 500 F CFA",
+        duration: "15min",
+        description: "Shampoing soins hydratant + massage crânien.",
+      },
+      {
+        name: "Shampoing simple (Enfant)",
+        price: "À partir de 2 000 F CFA",
+        duration: "15min",
+        description: "Shampoing soins hydratant + massage crânien.",
+      },
+      {
+        name: "Shampoing hydratant + soins",
+        price: "À partir de 7 000 F CFA",
         duration: "45 min",
-        description: "Shampooing suivi d'un soin nourrissant.",
+        description: "",
       },
       {
-        name: "Detox capillaire",
-        price: "50 €",
-        duration: "1 h",
-        description: "Traitement détoxifiant pour cuir chevelu et locks.",
-      },
-      {
-        name: "Hair Spa locks",
-        price: "70 €",
-        duration: "1 h 30",
-        description: "Soin complet relaxant pour locks et cuir chevelu.",
-      },
-      {
-        name: "Traitement anti-casse",
-        price: "45 €",
-        duration: "45 min",
-        description: "Renforcement des locks fragilisés.",
+        name: "DÉTOX LOCKS/MICROLOCKS",
+        price: "À partir de 7 000 F CFA",
+        duration: "1h",
+        description: "",
       },
     ],
   },
   {
-    title: "Coiffage & Mise en forme",
+    title: "COIFFAGE",
     services: [
       {
-        name: "Coiffure protectrice simple",
-        price: "30 €",
-        duration: "1 h",
-        description: "Coiffure protectrice basique.",
+        name: "Coiffure protectrice",
+        price: "À partir de 1 000 F CFA",
+        duration: "15min",
+        description: "",
       },
       {
-        name: "Chignon simple",
-        price: "25 €",
-        duration: "30 min",
-        description: "Chignon élégant et rapide.",
+        name: "Chignon simple sur Microlocks/Locks",
+        price: "À partir de 2 000 F CFA",
+        duration: "30min",
+        description: "",
       },
       {
         name: "Chignon élaboré",
-        price: "50 €",
-        duration: "1 h",
-        description: "Chignon sophistiqué pour événements.",
-      },
-      {
-        name: "Mise en plis locks",
-        price: "40 €",
-        duration: "1 h",
-        description: "Mise en forme et stylage des locks.",
-      },
-      {
-        name: "Coiffure événementielle",
-        price: "80 €",
-        duration: "2 h",
-        description: "Coiffure personnalisée pour occasions spéciales.",
+        price: "À partir de 3 000 F CFA",
+        duration: "45min",
+        description: "",
       },
     ],
   },
   {
-    title: "Autres prestations",
+    title: "BOUCLAGE DES LOCKS",
     services: [
       {
-        name: "Réparation locks (par lock)",
-        price: "5 €",
-        duration: "variable",
-        description: "Réparation de locks abîmés ou cassés.",
+        name: "Locks courtes (20cm)",
+        price: "À partir de 5 000 F CFA",
+        duration: "45 min",
+        description: "",
       },
       {
-        name: "Extensions locks",
-        price: "à partir de 100 €",
-        duration: "3 h",
-        description: "Ajout d'extensions pour allonger vos locks.",
+        name: "Locks mi-long (30cm)",
+        price: "À partir de 7 000 F CFA",
+        duration: "55min",
+        description: "",
       },
       {
-        name: "Coloration locks",
-        price: "à partir de 80 €",
-        duration: "2 h",
-        description: "Coloration adaptée aux locks.",
-      },
-      {
-        name: "Retrait de locks",
-        price: "à partir de 100 €",
-        duration: "variable",
-        description: "Retrait professionnel et soigné des locks.",
+        name: "Locks longues (40cm)",
+        price: "À partir de 8 000 F CFA",
+        duration: "1h",
+        description: "",
       },
     ],
   },
@@ -260,6 +304,14 @@ const Services = () => {
                 {category.title}
               </h3>
 
+              {category.hasWarning && category.warning && (
+                <div className="bg-destructive/10 border-2 border-destructive text-destructive-foreground p-4 rounded-lg mb-6">
+                  <p className="text-sm font-semibold leading-relaxed">
+                    ⚠️ {category.warning}
+                  </p>
+                </div>
+              )}
+
               <div className="space-y-4">
                 {category.services.map((service, serviceIndex) => (
                   <div key={serviceIndex}>
@@ -270,15 +322,21 @@ const Services = () => {
                           {service.name}
                         </h4>
                         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                          <span className="font-semibold text-foreground">
-                            {service.price}
-                          </span>
-                          <span>•</span>
-                          <span>{service.duration}</span>
+                          {service.price && (
+                            <>
+                              <span className="font-semibold text-foreground">
+                                {service.price}
+                              </span>
+                              {service.duration && <span>•</span>}
+                            </>
+                          )}
+                          {service.duration && <span>{service.duration}</span>}
                         </div>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
-                          {service.description}
-                        </p>
+                        {service.description && (
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            {service.description}
+                          </p>
+                        )}
                       </div>
 
                       {/* Booking button */}
