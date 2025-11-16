@@ -155,7 +155,7 @@ const serviceCategories: ServiceCategory[] = [
     title: "RESSERRAGE LOCKS AU CROCHET INTERLOCKS",
     hasWarning: true,
     warning:
-      "Clause Importante (Repousse) : Si la repousse de vos locks dépasse deux à trois mois, le prix initialement indiqué pourrait augmenter en raison du travail supplémentaire nécessaire (à l'appréciation du technicien).",
+      "Clause Importante (Repousse) : Si la repousse de vos locks dépasse deux à trois mois, le prix initialement indiqué pourrait augmenter en raison du travail supplémentaire nécessaire (à l'appréciation de la professionnelle).",
     services: [
       {
         name: "Resserrage locks traditionnel moins de 150 locks",
