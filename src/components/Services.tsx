@@ -196,6 +196,17 @@ const serviceCategories: ServiceCategory[] = [
     ],
   },
   {
+    title: "DEFAIRE SES LOCKS/MICROLOCKS/SISTERLOCKS",
+    services: [
+      {
+        name: "Sur devis",
+        price: "",
+        duration: "",
+        description: "",
+      },
+    ],
+  },
+  {
     title: "TWIST",
     services: [
       {
