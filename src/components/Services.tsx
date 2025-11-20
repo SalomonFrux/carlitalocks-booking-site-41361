@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Clock, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 
 type ServiceCategory = {
   title: string;
@@ -144,7 +146,7 @@ const serviceCategories: ServiceCategory[] = [
     title: "INSTALLATION LOCKS/MICROLOCKS AVEC EXTENSIONS",
     services: [
       {
-        name: "Sur devis",
+        name: "Devis personnalisé",
         price: "",
         duration: "",
         description: "",
@@ -281,19 +283,19 @@ const serviceCategories: ServiceCategory[] = [
       {
         name: "Locks courtes (20cm)",
         price: "À partir de 5 000 F CFA",
-        duration: "45 min",
-        description: "",
-      },
-      {
-        name: "Locks mi-long (30cm)",
-        price: "À partir de 7 000 F CFA",
-        duration: "55min",
-        description: "",
-      },
-      {
-        name: "Locks longues (40cm)",
-        price: "À partir de 8 000 F CFA",
         duration: "1h",
+        description: "",
+      },
+      {
+        name: "Locks Mi-longs (40 cm)",
+        price: "À partir de 7 000 F CFA",
+        duration: "1h30",
+        description: "",
+      },
+      {
+        name: "Locks longs (60 cm)",
+        price: "À partir de 10 000 F CFA",
+        duration: "2h",
         description: "",
       },
     ],
@@ -302,78 +304,103 @@ const serviceCategories: ServiceCategory[] = [
 
 const Services = () => {
   return (
-    <section id="services" className="py-20 bg-background">
-      <div className="container mx-auto px-4">
-        <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 text-foreground">
-          Découvrir nos services
-        </h2>
+    <section id="services" className="py-20 px-6 bg-background">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-16 animate-fade-in">
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+            Découvrir nos services
+          </h2>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            Des prestations professionnelles pour sublimer vos locks
+          </p>
+        </div>
 
-        <div className="max-w-6xl mx-auto space-y-16">
+        {/* Service Categories */}
+        <div className="space-y-20">
           {serviceCategories.map((category, categoryIndex) => (
-            <div key={categoryIndex} className="space-y-6">
-              <h3 className="text-2xl md:text-3xl font-semibold text-foreground mb-8">
-                {category.title}
-              </h3>
+            <div key={categoryIndex} className="animate-fade-in" style={{ animationDelay: `${categoryIndex * 0.1}s` }}>
+              {/* Category Title */}
+              <div className="mb-8">
+                <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
+                  {category.title === "À LA UNE" && <Sparkles className="w-6 h-6 text-primary" />}
+                  {category.title}
+                </h3>
+                
+                {/* Warning Badge */}
+                {category.hasWarning && category.warning && (
+                  <div className="mt-4 p-4 bg-warning/10 border border-warning/20 rounded-xl">
+                    <p className="text-sm text-warning-foreground">{category.warning}</p>
+                  </div>
+                )}
+              </div>
 
-              {category.hasWarning && category.warning && (
-                <div className="bg-warning/20 border-2 border-warning text-warning-foreground p-4 rounded-lg mb-6">
-                  <p className="text-sm font-bold leading-relaxed">
-                    ⚠️ {category.warning}
-                  </p>
-                </div>
-              )}
-
-              <div className="space-y-4">
+              {/* Service Cards Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {category.services.map((service, serviceIndex) => (
-                  <div key={serviceIndex}>
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start py-4">
-                      {/* Service info */}
-                      <div className="lg:col-span-8 space-y-2">
-                        <h4 className="text-lg font-medium text-foreground">
-                          {service.name}
-                        </h4>
-                        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                          {service.price && (
-                            <>
-                              <span className="font-semibold text-foreground">
-                                {service.price}
-                              </span>
-                              {service.duration && <span>•</span>}
-                            </>
-                          )}
-                          {service.duration && <span>{service.duration}</span>}
-                        </div>
-                        {service.description && (
-                          <p className="text-sm text-muted-foreground leading-relaxed">
-                            {service.description}
-                          </p>
-                        )}
-                      </div>
+                  <Card 
+                    key={serviceIndex} 
+                    className="group hover:shadow-gold hover:scale-105 transition-all duration-300 rounded-[20px] border-border/50 overflow-hidden bg-card"
+                  >
+                    <CardHeader>
+                      <CardTitle className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+                        {service.name}
+                      </CardTitle>
+                      {service.description && (
+                        <CardDescription className="text-sm text-muted-foreground mt-2">
+                          {service.description}
+                        </CardDescription>
+                      )}
+                    </CardHeader>
 
-                      {/* Booking button */}
-                      <div className="lg:col-span-4 flex lg:justify-end">
-                        <Button
-                          variant="default"
-                          className="w-full lg:w-auto"
-                          onClick={() => {
-                            // Placeholder pour le moment
-                            console.log("Réserver:", service.name);
-                          }}
-                        >
+                    <CardContent className="space-y-3">
+                      {/* Duration */}
+                      {service.duration && (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Clock className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-medium">{service.duration}</span>
+                        </div>
+                      )}
+
+                      {/* Price */}
+                      {service.price ? (
+                        <div className="text-2xl font-bold text-primary">
+                          {service.price}
+                        </div>
+                      ) : (
+                        <div className="text-lg font-semibold text-muted-foreground italic">
+                          Sur devis
+                        </div>
+                      )}
+                    </CardContent>
+
+                    <CardFooter>
+                      <Link to="/reservation" className="w-full">
+                        <Button className="w-full rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground">
                           Réserver
                         </Button>
-                      </div>
-                    </div>
-
-                    {/* Separator between services, but not after the last one */}
-                    {serviceIndex < category.services.length - 1 && (
-                      <Separator className="mt-4" />
-                    )}
-                  </div>
+                      </Link>
+                    </CardFooter>
+                  </Card>
                 ))}
               </div>
             </div>
           ))}
+        </div>
+
+        {/* CTA Section */}
+        <div className="mt-20 text-center bg-gradient-accent rounded-[24px] p-12 animate-fade-in">
+          <h3 className="text-3xl font-bold text-accent-foreground mb-4">
+            Prête à réserver votre prestation ?
+          </h3>
+          <p className="text-accent-foreground/80 mb-6 max-w-xl mx-auto">
+            Choisissez votre service préféré et réservez votre créneau en quelques clics
+          </p>
+          <Link to="/reservation">
+            <Button size="lg" variant="secondary" className="rounded-xl">
+              Prendre rendez-vous
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
