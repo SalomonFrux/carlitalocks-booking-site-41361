@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Trash2, ShoppingBag } from "lucide-react";
+import { Trash2, ShoppingBag, ArrowLeft } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import PaymentModal from "@/components/PaymentModal";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
@@ -17,12 +17,15 @@ const Checkout = () => {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background py-20">
         <div className="text-center">
-          <ShoppingBag className="mx-auto mb-4 h-16 w-16 text-muted-foreground" />
-          <h2 className="mb-4 font-playfair text-2xl text-foreground">
+          <ShoppingBag className="mx-auto mb-6 h-20 w-20 text-primary" />
+          <h2 className="mb-4 text-2xl font-bold text-foreground">
             Votre panier est vide
           </h2>
-          <Button onClick={() => navigate("/")} className="hover-magnetic">
-            Découvrir nos produits
+          <p className="mb-8 text-muted-foreground">
+            Il semble que vous n'ayez encore rien ajouté.
+          </p>
+          <Button onClick={() => navigate("/reservation")}>
+            Découvrir nos services
           </Button>
         </div>
       </div>
@@ -30,63 +33,71 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background py-20">
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/90 py-12 md:py-20">
       <div className="container mx-auto px-4">
         <div ref={contentRef}>
-          <h1 className="mb-8 font-playfair text-4xl font-bold text-foreground md:text-5xl">
-            Votre Panier
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/reservation")}
+            className="mb-6 text-primary hover:text-primary/90"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Retour aux services
+          </Button>
+
+          <h1 className="mb-10 text-4xl font-bold text-foreground md:text-5xl text-center">
+            Finaliser ma réservation
           </h1>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 lg:gap-16 gap-10">
             {/* Cart Items */}
             <div className="lg:col-span-7">
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {items.map((item) => (
-                  <Card key={item.id} className="overflow-hidden shadow-sm">
-                    <div className="flex items-center gap-4 p-4">
+                  <Card key={item.id} className="overflow-hidden shadow-lg border-border/50 rounded-2xl bg-card">
+                    <div className="flex items-center gap-6 p-6">
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="h-28 w-28 rounded-lg object-cover"
+                        className="h-32 w-32 rounded-lg object-cover"
                       />
                       <div className="flex flex-1 flex-col justify-between self-stretch">
                         <div>
-                          <h3 className="font-playfair text-xl font-semibold text-foreground">
+                          <h3 className="text-xl font-semibold text-foreground leading-tight">
                             {item.name}
                           </h3>
-                          <p className="font-playfair text-2xl font-bold text-primary mt-1">
+                          <p className="text-2xl font-bold text-primary mt-2">
                             {item.price.toFixed(2)} CHF
                           </p>
                         </div>
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between mt-4">
                           <div className="flex items-center gap-2">
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() =>
-                                updateQuantity(item.id, item.quantity - 1)
-                              }
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              disabled={item.quantity <= 1}
+                              className="w-8 h-8 rounded-full"
                             >
                               -
                             </Button>
-                            <span className="w-10 text-center font-inter text-lg">
+                            <span className="w-10 text-center text-lg font-medium">
                               {item.quantity}
                             </span>
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() =>
-                                updateQuantity(item.id, item.quantity + 1)
-                              }
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              className="w-8 h-8 rounded-full"
                             >
                               +
                             </Button>
                           </div>
                           <Button
-                            size="sm"
+                            size="icon"
                             variant="ghost"
                             onClick={() => removeItem(item.id)}
-                            className="text-destructive hover:text-destructive"
+                            className="text-muted-foreground hover:text-destructive rounded-full"
                           >
                             <Trash2 className="h-5 w-5" />
                           </Button>
@@ -100,45 +111,37 @@ const Checkout = () => {
 
             {/* Order Summary */}
             <div className="lg:col-span-5">
-              <Card className="sticky top-24 p-6 shadow-md">
-                <h2 className="mb-6 font-playfair text-3xl font-bold text-foreground">
-                  Votre réservation
+              <Card className="sticky top-28 p-8 shadow-xl rounded-2xl border-border/50 bg-card">
+                <h2 className="mb-8 text-3xl font-bold text-foreground text-center">
+                  Récapitulatif
                 </h2>
-                <div className="space-y-4">
-                  <div className="flex justify-between font-inter text-lg text-muted-foreground">
+                <div className="space-y-5">
+                  <div className="flex justify-between text-lg text-muted-foreground">
                     <span>{totalItems} article{totalItems > 1 ? 's' : ''}</span>
                     <span>{totalPrice.toFixed(2)} CHF</span>
                   </div>
-                  <div className="flex justify-between font-inter text-lg text-muted-foreground">
+                  <div className="flex justify-between text-lg text-muted-foreground">
                     <span>Frais de service</span>
                     <span>0.00 CHF</span>
                   </div>
-                  <div className="border-t border-border pt-4 mt-4">
-                    <div className="flex justify-between items-center">
-                      <span className="font-playfair text-2xl font-bold text-foreground">
-                        Total à payer
-                      </span>
-                      <span className="font-playfair text-3xl font-extrabold text-primary">
-                        {totalPrice.toFixed(2)} CHF
-                      </span>
-                    </div>
+                  <div className="border-t border-border/50 my-6"></div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xl font-bold text-foreground">
+                      Total
+                    </span>
+                    <span className="text-3xl font-extrabold text-primary">
+                      {totalPrice.toFixed(2)} CHF
+                    </span>
                   </div>
                   <Button
                     onClick={() => setIsPaymentModalOpen(true)}
                     size="lg"
-                    className="hover-magnetic w-full bg-primary font-inter text-xl py-7 mt-6 hover:bg-primary/90"
+                    className="w-full text-lg py-7 mt-8 rounded-xl bg-primary hover:bg-primary/90 transition-transform hover:scale-105"
                   >
-                    Procéder au paiement
+                    Confirmer et payer
                   </Button>
-                  <Button
-                    onClick={() => navigate("/")}
-                    variant="outline"
-                    className="w-full font-inter text-md py-6"
-                  >
-                    Continuer mes achats
-                  </Button>
-                  <p className="text-center font-inter text-sm text-muted-foreground pt-4">
-                    🔒 Paiement 100% sécurisé via Stripe & PayPal
+                  <p className="text-center text-sm text-muted-foreground pt-4">
+                    🔒 Paiement 100% sécurisé
                   </p>
                 </div>
               </Card>

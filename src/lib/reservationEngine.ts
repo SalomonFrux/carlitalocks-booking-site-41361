@@ -48,7 +48,7 @@ export type CustomerInfo = {
 };
 
 // In-memory bookings store (in production, this would be in a database)
-let bookings: Booking[] = [];
+const bookings: Booking[] = [];
 
 // Helper function to parse time string to minutes
 const timeToMinutes = (time: string): number => {

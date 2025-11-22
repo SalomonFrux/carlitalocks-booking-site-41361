@@ -57,7 +57,7 @@ const ReservationPage = () => {
         {!showScheduling ? (
           // Service Selection View
           <div className="max-w-[1400px] mx-auto px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Left Column - Service List */}
               <div className="animate-fade-in">
                 <ServiceList
