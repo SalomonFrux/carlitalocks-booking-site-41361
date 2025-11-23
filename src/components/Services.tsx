@@ -1,5 +1,10 @@
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -305,7 +310,7 @@ const serviceCategories: ServiceCategory[] = [
 const Services = () => {
   return (
     <section id="services" className="py-20 px-6 bg-background">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
@@ -316,77 +321,66 @@ const Services = () => {
           </p>
         </div>
 
-        {/* Service Categories */}
-        <div className="space-y-20">
+        {/* Service Accordion */}
+        <Accordion type="single" collapsible className="w-full space-y-4">
           {serviceCategories.map((category, categoryIndex) => (
-            <div key={categoryIndex} className="animate-fade-in" style={{ animationDelay: `${categoryIndex * 0.1}s` }}>
-              {/* Category Title */}
-              <div className="mb-8">
-                <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
+            <AccordionItem
+              value={`item-${categoryIndex}`}
+              key={categoryIndex}
+              className="border border-border/50 rounded-[20px] overflow-hidden bg-card animate-fade-in"
+              style={{ animationDelay: `${categoryIndex * 0.1}s` }}
+            >
+              <AccordionTrigger className="p-6 text-left hover:no-underline">
+                <h3 className="text-xl md:text-2xl font-semibold text-foreground flex items-center gap-3">
                   {category.title === "À LA UNE" && <Sparkles className="w-6 h-6 text-primary" />}
                   {category.title}
                 </h3>
-                
+              </AccordionTrigger>
+              <AccordionContent className="p-6 pt-0">
                 {/* Warning Badge */}
                 {category.hasWarning && category.warning && (
-                  <div className="mt-4 p-4 bg-warning/10 border border-warning/20 rounded-xl">
+                  <div className="mb-6 p-4 bg-warning/10 border border-warning/20 rounded-xl">
                     <p className="text-sm text-warning-foreground">{category.warning}</p>
                   </div>
                 )}
-              </div>
 
-              {/* Service Cards Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {category.services.map((service, serviceIndex) => (
-                  <Card 
-                    key={serviceIndex} 
-                    className="group hover:shadow-gold hover:scale-105 transition-all duration-300 rounded-[20px] border-border/50 overflow-hidden bg-card"
-                  >
-                    <CardHeader>
-                      <CardTitle className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
-                        {service.name}
-                      </CardTitle>
-                      {service.description && (
-                        <CardDescription className="text-sm text-muted-foreground mt-2">
-                          {service.description}
-                        </CardDescription>
-                      )}
-                    </CardHeader>
+                {/* Services List */}
+                <div className="space-y-6">
+                  {category.services.map((service, serviceIndex) => (
+                    <div key={serviceIndex} className="p-4 rounded-lg border border-border/30 bg-background/50">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-semibold text-foreground text-lg">{service.name}</h4>
+                          {service.description && (
+                            <p className="text-sm text-muted-foreground mt-1">{service.description}</p>
+                          )}
+                        </div>
+                        <div className="text-right pl-4">
+                          {service.price ? (
+                            <div className="text-xl font-bold text-primary whitespace-nowrap">
+                              {service.price}
+                            </div>
+                          ) : (
+                            <div className="text-md font-semibold text-muted-foreground italic">
+                              Sur devis
+                            </div>
+                          )}
+                        </div>
+                      </div>
 
-                    <CardContent className="space-y-3">
-                      {/* Duration */}
                       {service.duration && (
-                        <div className="flex items-center gap-2 text-muted-foreground">
+                        <div className="flex items-center gap-2 text-muted-foreground mt-3 pt-3 border-t border-border/30">
                           <Clock className="w-4 h-4 text-primary" />
                           <span className="text-sm font-medium">{service.duration}</span>
                         </div>
                       )}
-
-                      {/* Price */}
-                      {service.price ? (
-                        <div className="text-2xl font-bold text-primary">
-                          {service.price}
-                        </div>
-                      ) : (
-                        <div className="text-lg font-semibold text-muted-foreground italic">
-                          Sur devis
-                        </div>
-                      )}
-                    </CardContent>
-
-                    <CardFooter>
-                      <Link to="/reservation" className="w-full">
-                        <Button className="w-full rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground">
-                          Réserver
-                        </Button>
-                      </Link>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            </div>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
           ))}
-        </div>
+        </Accordion>
 
         {/* CTA Section */}
         <div className="mt-20 text-center bg-gradient-accent rounded-[24px] p-12 animate-fade-in">
