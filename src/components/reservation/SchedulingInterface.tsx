@@ -187,7 +187,7 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
             disabled={(date) => {
               const today = new Date();
               today.setHours(0, 0, 0, 0);
-              return date < today || getAvailabilityForDate(date) === 0;
+              return date < today || date.getDay() === 0 || getAvailabilityForDate(date) === 0;
             }}
             className={cn("mx-auto pointer-events-auto")}
             modifiers={{
@@ -254,11 +254,6 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
                     <span className="flex items-center gap-1 text-xs text-warning">
                       <Flame className="w-3 h-3" />
                       Très demandé
-                    </span>
-                  )}
-                  {slot.available && (
-                    <span className="text-xs text-muted-foreground">
-                      {slot.availableStaff} coiffeuse{slot.availableStaff > 1 ? "s" : ""}
                     </span>
                   )}
                 </div>
