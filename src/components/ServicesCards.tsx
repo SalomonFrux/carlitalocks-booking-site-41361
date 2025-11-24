@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 const ServicesCards = () => {
   const titleRef = useScrollReveal();
-  const cardsRef = useScrollReveal(0.15);
+  const cardsRef = useScrollReveal();
   const [openService, setOpenService] = useState<string | null>(null);
 
   const services = [

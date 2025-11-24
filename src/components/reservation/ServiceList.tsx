@@ -23,17 +23,21 @@ const ServiceList = ({ onAddService, selectedServiceIds }: ServiceListProps) => 
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const category = entry.target.getAttribute("data-category");
-            if (category) {
-              setActiveCategory(category);
-            }
+        // Find the entry with the highest intersection ratio
+        const visibleEntries = entries.filter(entry => entry.isIntersecting);
+        if (visibleEntries.length > 0) {
+          const mostVisible = visibleEntries.reduce((prev, current) => 
+            current.intersectionRatio > prev.intersectionRatio ? current : prev
+          );
+          const category = mostVisible.target.getAttribute("data-category");
+          if (category) {
+            setActiveCategory(category);
           }
-        });
+        }
       },
       {
-        rootMargin: "-20% 0px -70% 0px",
+        rootMargin: "-120px 0px -40% 0px",
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
       }
     );
 
@@ -51,9 +55,17 @@ const ServiceList = ({ onAddService, selectedServiceIds }: ServiceListProps) => 
   const scrollToCategory = (category: string) => {
     const element = categoryRefs.current[category];
     if (element) {
-      const yOffset = -100;
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: "smooth" });
+      const headerOffset = 140; // Account for navbar + sticky tabs
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      
+      window.scrollTo({ 
+        top: offsetPosition, 
+        behavior: "smooth" 
+      });
+      
+      // Immediately set active category to prevent flicker
+      setActiveCategory(category);
     }
   };
 
