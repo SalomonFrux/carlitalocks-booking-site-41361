@@ -1,9 +1,10 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Service, SERVICES, CATEGORIES, CATEGORY_WARNINGS, formatDuration } from "@/lib/serviceConfig";
-import { Clock, Plus, Sparkles, AlertCircle, Check } from "lucide-react";
+import { Clock, Plus, Sparkles, AlertCircle, Check, Search, X } from "lucide-react";
 import AddServiceModal from "./AddServiceModal";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -16,8 +17,32 @@ const ServiceList = ({ onAddService, selectedServiceIds }: ServiceListProps) => 
   const [activeCategory, setActiveCategory] = useState<string>(CATEGORIES[0]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const categoryRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const observerRef = useRef<IntersectionObserver | null>(null);
+
+  // Filter services based on search query
+  const filteredServices = useMemo(() => {
+    if (!searchQuery.trim()) return SERVICES;
+    
+    const query = searchQuery.toLowerCase();
+    return SERVICES.filter((service) => {
+      const matchesName = service.name.toLowerCase().includes(query);
+      const matchesCategory = service.category.toLowerCase().includes(query);
+      const matchesDescription = service.description?.toLowerCase().includes(query);
+      return matchesName || matchesCategory || matchesDescription;
+    });
+  }, [searchQuery]);
+
+  // Get filtered categories (only categories with matching services)
+  const filteredCategories = useMemo(() => {
+    if (!searchQuery.trim()) return CATEGORIES;
+    
+    const categoriesWithResults = new Set(
+      filteredServices.map((service) => service.category)
+    );
+    return CATEGORIES.filter((category) => categoriesWithResults.has(category));
+  }, [filteredServices, searchQuery]);
 
   // Scroll spy effect
   useEffect(() => {
@@ -78,12 +103,44 @@ const ServiceList = ({ onAddService, selectedServiceIds }: ServiceListProps) => 
     onAddService(service);
   };
 
+  const clearSearch = () => {
+    setSearchQuery("");
+  };
+
   return (
     <div className="space-y-6">
+      {/* Search Bar */}
+      <div className="relative animate-fade-in">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder="Rechercher un service ou une catégorie..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10 pr-10 h-12 text-base rounded-full border-2 focus:border-primary"
+        />
+        {searchQuery && (
+          <button
+            onClick={clearSearch}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full transition-colors"
+            aria-label="Clear search"
+          >
+            <X className="w-5 h-5 text-muted-foreground" />
+          </button>
+        )}
+      </div>
+
+      {/* Search Results Count */}
+      {searchQuery && (
+        <div className="text-sm text-muted-foreground animate-fade-in">
+          {filteredServices.length} service{filteredServices.length !== 1 ? 's' : ''} trouvé{filteredServices.length !== 1 ? 's' : ''}
+        </div>
+      )}
+
       {/* Sticky Category Tabs */}
       <div className="sticky top-20 z-10 bg-background/95 backdrop-blur-sm py-4 -mx-6 px-6 border-b border-border">
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          {CATEGORIES.map((category) => (
+          {filteredCategories.map((category) => (
             <Button
               key={category}
               variant={activeCategory === category ? "default" : "outline"}
@@ -103,9 +160,24 @@ const ServiceList = ({ onAddService, selectedServiceIds }: ServiceListProps) => 
 
       {/* Service Categories */}
       <div className="space-y-10">
-        {CATEGORIES.map((category) => {
-          const categoryServices = SERVICES.filter((s) => s.category === category);
-          if (categoryServices.length === 0) return null;
+        {filteredCategories.length === 0 ? (
+          <div className="text-center py-12 animate-fade-in">
+            <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-lg text-muted-foreground">
+              Aucun service trouvé pour "{searchQuery}"
+            </p>
+            <Button
+              onClick={clearSearch}
+              variant="outline"
+              className="mt-4"
+            >
+              Effacer la recherche
+            </Button>
+          </div>
+        ) : (
+          filteredCategories.map((category) => {
+            const categoryServices = filteredServices.filter((s) => s.category === category);
+            if (categoryServices.length === 0) return null;
 
           const categoryWarning = CATEGORY_WARNINGS[category];
 
@@ -189,7 +261,8 @@ const ServiceList = ({ onAddService, selectedServiceIds }: ServiceListProps) => 
               </div>
             </div>
           );
-        })}
+        })
+        )}
       </div>
 
       {/* Add Service Modal */}
