@@ -67,7 +67,7 @@ const Checkout = () => {
                             {item.name}
                           </h3>
                           <p className="text-2xl font-bold text-primary mt-2">
-                            {parseFloat(item.price.replace(/[^0-9.]/g, '')).toFixed(2)} CHF
+                            {item.price.toFixed(2)} CHF
                           </p>
                         </div>
                         <div className="flex items-center justify-between mt-4">

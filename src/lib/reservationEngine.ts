@@ -140,10 +140,10 @@ export const getAvailableSlots = (service: Service, date: Date): TimeSlot[] => {
   
   // For morning-only services (10h+)
   if (service.duration.morningOnly) {
-    const morningEnd = timeToMinutes('12:00');
-    let currentTime = workingStart;
+    const currentTime = workingStart;
+    const serviceEndTime = currentTime + serviceDurationMinutes;
     
-    while (currentTime + serviceDurationMinutes <= morningEnd) {
+    if (serviceEndTime <= workingEnd) {
       const timeString = minutesToTime(currentTime);
       const availableStaff = getAvailableStaffForSlot(date, timeString, service.duration);
       
@@ -153,8 +153,6 @@ export const getAvailableSlots = (service: Service, date: Date): TimeSlot[] => {
         availableStaff: availableStaff.length,
         highDemand: availableStaff.length <= 2 && availableStaff.length > 0,
       });
-      
-      currentTime += 60;
     }
     return slots;
   }

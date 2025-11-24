@@ -17,6 +17,12 @@ import {
 import { Calendar as CalendarIcon, Clock, User, Phone, Upload, Flame, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type SchedulingInterfaceProps = {
   selectedServices: Service[];
@@ -162,10 +168,11 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
         </CardContent>
       </Card>
 
-      {/* Date Selection */}
-      <section className="animate-fade-in">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3 flex items-center justify-center gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        {/* Date Selection */}
+        <section className="animate-fade-in">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3 flex items-center justify-center gap-3">
             <CalendarIcon className="w-8 h-8 text-primary" />
             Choisissez votre date
           </h2>
@@ -185,21 +192,36 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
             className={cn("mx-auto pointer-events-auto")}
             modifiers={{
               available: (date) => getAvailabilityForDate(date) > 0,
+              sunday: { dayOfWeek: 0 },
             }}
             modifiersClassNames={{
               available: "bg-primary/10 font-semibold",
+              sunday: "text-red-500",
             }}
           />
 
           <div className="mt-6 space-y-2 text-center text-sm">
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-4 h-4 rounded bg-primary/10" />
-              <span className="text-muted-foreground">Jours disponibles</span>
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-4 h-4 rounded bg-muted" />
-              <span className="text-muted-foreground">Complet</span>
-            </div>
+            <TooltipProvider>
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-4 h-4 rounded bg-primary/10" />
+                <span className="text-muted-foreground">Jours disponibles</span>
+              </div>
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-4 h-4 rounded bg-muted" />
+                <span className="text-muted-foreground">Complet</span>
+              </div>
+              <div className="flex items-center justify-center gap-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="w-4 h-4 rounded bg-red-500/20" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>C'est sur rendez-vous</p>
+                  </TooltipContent>
+                </Tooltip>
+                <span className="text-muted-foreground">Dimanches</span>
+              </div>
+            </TooltipProvider>
           </div>
         </Card>
       </section>
@@ -245,6 +267,7 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
           </div>
         </section>
       )}
+      </div>
 
       {/* Client Information Form */}
       {selectedDate && selectedTime && (
