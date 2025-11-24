@@ -33,7 +33,7 @@ const ServiceList = ({ onAddService, selectedServiceIds }: ServiceListProps) => 
         });
       },
       {
-        rootMargin: "-20% 0px -70% 0px",
+        rootMargin: "-100px 0px -90% 0px",
       }
     );
 
