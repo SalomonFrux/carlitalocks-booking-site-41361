@@ -15,6 +15,7 @@ import {
   TimeSlot 
 } from "@/lib/reservationEngine";
 import { Calendar as CalendarIcon, Clock, User, Phone, Upload, Flame, CheckCircle2 } from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger, DialogOverlay, DialogClose, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -38,6 +39,7 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
   const [notes, setNotes] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const [openInfoDialog, setOpenInfoDialog] = useState(false);
 
   const totalDuration = calculateTotalDuration(selectedServices);
   const requiresPhoto = selectedServices.some((s) => s.requiresPhoto);
@@ -58,6 +60,11 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
   const handleTimeSelect = (time: string) => {
     setSelectedTime(time);
     toast.success(`Heure sélectionnée: ${time}`);
+    // On small screens, open the client info dialog automatically so the user
+    // doesn't need to scroll to fill their details.
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setOpenInfoDialog(true);
+    }
   };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,6 +73,88 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
       toast.success("Photo téléchargée");
     }
   };
+
+  const renderClientForm = () => (
+    <Card className="rounded-[24px]">
+      <CardContent className="p-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Name */}
+          <div className="space-y-2">
+            <Label htmlFor="name" className="flex items-center gap-2">
+              <User className="w-4 h-4 text-primary" />
+              Nom complet *
+            </Label>
+            <Input
+              id="name"
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
+              placeholder="Votre nom complet"
+              required
+              className="rounded-xl h-12"
+            />
+          </div>
+
+          {/* WhatsApp Number */}
+          <div className="space-y-2">
+            <Label htmlFor="phone" className="flex items-center gap-2">
+              <Phone className="w-4 h-4 text-primary" />
+              Numéro WhatsApp *
+            </Label>
+            <Input
+              id="phone"
+              type="tel"
+              value={whatsappNumber}
+              onChange={(e) => setWhatsappNumber(e.target.value)}
+              placeholder="+228 XX XX XX XX"
+              required
+              className="rounded-xl h-12"
+            />
+          </div>
+
+          {/* Photo Upload */}
+          {requiresPhoto && (
+            <div className="space-y-2">
+              <Label htmlFor="photo" className="flex items-center gap-2">
+                <Upload className="w-4 h-4 text-primary" />
+                Photo de vos cheveux *
+              </Label>
+              <Input
+                id="photo"
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                required={requiresPhoto}
+                className="rounded-xl h-12"
+              />
+              <p className="text-xs text-muted-foreground">
+                Une photo claire de vos cheveux aide nos coiffeuses à mieux préparer votre prestation
+              </p>
+            </div>
+          )}
+
+          {/* Notes */}
+          <div className="space-y-2">
+            <Label htmlFor="notes">Notes (optionnel)</Label>
+            <Textarea
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Informations supplémentaires..."
+              className="rounded-xl min-h-[100px]"
+            />
+          </div>
+
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            className="w-full h-14 rounded-xl text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+          >
+            Confirmer la réservation
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -169,193 +258,136 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {/* Date Selection */}
-        <section className="animate-fade-in">
-          <div className="text-center mb-8">
+        {/* Left column: Calendar + Time slots */}
+        <div className="space-y-6">
+          <div className="text-center mb-4">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3 flex items-center justify-center gap-3">
-            <CalendarIcon className="w-8 h-8 text-primary" />
-            Choisissez votre date
-          </h2>
-          <p className="text-muted-foreground">Sélectionnez un jour disponible</p>
+              <CalendarIcon className="w-8 h-8 text-primary" />
+              Choisissez votre date
+            </h2>
+            <p className="text-muted-foreground">Sélectionnez un jour disponible</p>
+          </div>
+
+          <Card className="rounded-[24px] p-6">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={handleDateSelect}
+              disabled={(date) => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                return date < today || date.getDay() === 0 || getAvailabilityForDate(date) === 0;
+              }}
+              className={cn("mx-auto pointer-events-auto")}
+              modifiers={{
+                available: (date) => getAvailabilityForDate(date) > 0,
+                sunday: (date) => date.getDay() === 0,
+              }}
+              modifiersClassNames={{
+                available: "bg-primary/10 font-semibold",
+                sunday: "text-red-500",
+              }}
+            />
+
+            <div className="mt-6 space-y-2 text-center text-sm">
+              <TooltipProvider>
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 rounded bg-primary/10" />
+                  <span className="text-muted-foreground">Jours disponibles</span>
+                </div>
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 rounded bg-muted" />
+                  <span className="text-muted-foreground">Complet</span>
+                </div>
+                <div className="flex items-center justify-center gap-2">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="w-4 h-4 rounded bg-red-500/20" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>C'est sur rendez-vous</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <span className="text-muted-foreground">Dimanches</span>
+                </div>
+              </TooltipProvider>
+            </div>
+          </Card>
+
+          {/* Time Selection (keeps near the calendar so user doesn't need to scroll far) */}
+          {selectedDate && availableSlots.length > 0 && (
+            <section className="animate-fade-in">
+              <div className="text-center mb-4">
+                <h3 className="text-2xl font-bold text-foreground mb-2 flex items-center justify-center gap-2">
+                  <Clock className="w-6 h-6 text-primary" /> Choisissez votre heure
+                </h3>
+                <p className="text-muted-foreground">Créneaux disponibles pour le {selectedDate.toLocaleDateString("fr-FR")}</p>
+              </div>
+
+              <div className="max-w-3xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
+                {availableSlots.map((slot) => (
+                  <Button
+                    key={slot.time}
+                    variant={selectedTime === slot.time ? "default" : "outline"}
+                    disabled={!slot.available}
+                    onClick={() => handleTimeSelect(slot.time)}
+                    className="h-20 rounded-[16px] relative overflow-hidden"
+                  >
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-lg font-bold">{slot.time}</span>
+                      {slot.highDemand && slot.available && (
+                        <span className="flex items-center gap-1 text-xs text-warning">
+                          <Flame className="w-3 h-3" /> Très demandé
+                        </span>
+                      )}
+                    </div>
+                  </Button>
+                ))}
+              </div>
+
+              {/* Mobile: button to open client info dialog */}
+              {selectedTime && (
+                <div className="mt-4 md:hidden flex justify-center">
+                  <Dialog open={openInfoDialog} onOpenChange={(open) => setOpenInfoDialog(open)}>
+                    <DialogTrigger asChild>
+                      <Button className="w-full max-w-xs">Entrer vos informations</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Vos informations</DialogTitle>
+                        <DialogDescription>Complétez vos coordonnées pour finaliser la réservation</DialogDescription>
+                      </DialogHeader>
+                      {renderClientForm()}
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              )}
+            </section>
+          )}
         </div>
 
-        <Card className="max-w-2xl mx-auto rounded-[24px] p-6">
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={handleDateSelect}
-            disabled={(date) => {
-              const today = new Date();
-              today.setHours(0, 0, 0, 0);
-              return date < today || date.getDay() === 0 || getAvailabilityForDate(date) === 0;
-            }}
-            className={cn("mx-auto pointer-events-auto")}
-            modifiers={{
-              available: (date) => getAvailabilityForDate(date) > 0,
-              sunday: (date) => date.getDay() === 0,
-            }}
-            modifiersClassNames={{
-              available: "bg-primary/10 font-semibold",
-              sunday: "text-red-500",
-            }}
-          />
-
-          <div className="mt-6 space-y-2 text-center text-sm">
-            <TooltipProvider>
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 rounded bg-primary/10" />
-                <span className="text-muted-foreground">Jours disponibles</span>
-              </div>
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 rounded bg-muted" />
-                <span className="text-muted-foreground">Complet</span>
-              </div>
-              <div className="flex items-center justify-center gap-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="w-4 h-4 rounded bg-red-500/20" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>C'est sur rendez-vous</p>
-                  </TooltipContent>
-                </Tooltip>
-                <span className="text-muted-foreground">Dimanches</span>
-              </div>
-            </TooltipProvider>
-          </div>
-        </Card>
-      </section>
-
-      {/* Time Selection */}
-      {selectedDate && availableSlots.length > 0 && (
-        <section className="animate-fade-in">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3 flex items-center justify-center gap-3">
-              <Clock className="w-8 h-8 text-primary" />
-              Choisissez votre heure
-            </h2>
-            <p className="text-muted-foreground">
-              Créneaux disponibles pour le {selectedDate.toLocaleDateString("fr-FR")}
-            </p>
-          </div>
-
-          <div className="max-w-3xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
-            {availableSlots.map((slot) => (
-              <Button
-                key={slot.time}
-                variant={selectedTime === slot.time ? "default" : "outline"}
-                disabled={!slot.available}
-                onClick={() => handleTimeSelect(slot.time)}
-                className="h-20 rounded-[16px] relative overflow-hidden"
-              >
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-lg font-bold">{slot.time}</span>
-                  {slot.highDemand && slot.available && (
-                    <span className="flex items-center gap-1 text-xs text-warning">
-                      <Flame className="w-3 h-3" />
-                      Très demandé
-                    </span>
-                  )}
-                </div>
-              </Button>
-            ))}
-          </div>
-        </section>
-      )}
-      </div>
-
-      {/* Client Information Form */}
-      {selectedDate && selectedTime && (
-        <section className="animate-fade-in">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3 flex items-center justify-center gap-3">
-              <User className="w-8 h-8 text-primary" />
-              Vos informations
+        {/* Right column: Client info (visible on md and up) */}
+        <div className="hidden md:block">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-foreground mb-2 flex items-center justify-center gap-2">
+              <User className="w-6 h-6 text-primary" /> Vos informations
             </h2>
             <p className="text-muted-foreground">Complétez vos coordonnées</p>
           </div>
 
-          <Card className="max-w-2xl mx-auto rounded-[24px]">
-            <CardContent className="p-8">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Name */}
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-primary" />
-                    Nom complet *
-                  </Label>
-                  <Input
-                    id="name"
-                    value={clientName}
-                    onChange={(e) => setClientName(e.target.value)}
-                    placeholder="Votre nom complet"
-                    required
-                    className="rounded-xl h-12"
-                  />
-                </div>
+          {selectedDate && selectedTime ? (
+            renderClientForm()
+          ) : (
+            <Card className="rounded-[24px] p-6">
+              <CardContent className="text-center">
+                <p className="text-muted-foreground">Sélectionnez d'abord une date et une heure pour voir et remplir le formulaire.</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
 
-                {/* WhatsApp Number */}
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-primary" />
-                    Numéro WhatsApp *
-                  </Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={whatsappNumber}
-                    onChange={(e) => setWhatsappNumber(e.target.value)}
-                    placeholder="+228 XX XX XX XX"
-                    required
-                    className="rounded-xl h-12"
-                  />
-                </div>
-
-                {/* Photo Upload */}
-                {requiresPhoto && (
-                  <div className="space-y-2">
-                    <Label htmlFor="photo" className="flex items-center gap-2">
-                      <Upload className="w-4 h-4 text-primary" />
-                      Photo de vos cheveux *
-                    </Label>
-                    <Input
-                      id="photo"
-                      type="file"
-                      accept="image/*"
-                      onChange={handlePhotoUpload}
-                      required={requiresPhoto}
-                      className="rounded-xl h-12"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Une photo claire de vos cheveux aide nos coiffeuses à mieux préparer votre prestation
-                    </p>
-                  </div>
-                )}
-
-                {/* Notes */}
-                <div className="space-y-2">
-                  <Label htmlFor="notes">Notes (optionnel)</Label>
-                  <Textarea
-                    id="notes"
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Informations supplémentaires..."
-                    className="rounded-xl min-h-[100px]"
-                  />
-                </div>
-
-                {/* Submit Button */}
-                <Button
-                  type="submit"
-                  className="w-full h-14 rounded-xl text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  Confirmer la réservation
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </section>
-      )}
+      
     </div>
   );
 };

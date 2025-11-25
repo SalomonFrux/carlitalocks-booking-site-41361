@@ -1,17 +1,26 @@
 import { Button } from "@/components/ui/button";
 import { Phone, Menu } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import logo from "@/assets/logo-carlitalocks.png";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
       setIsMenuOpen(false);
+      return;
     }
+
+    // If the element isn't on the current page (e.g., we're on /reservation),
+    // navigate to the home page and pass the target id in state so the Index
+    // page can scroll to it after mount.
+    navigate("/", { state: { scrollTo: id } });
+    setIsMenuOpen(false);
   };
 
   return (

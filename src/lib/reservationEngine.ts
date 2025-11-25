@@ -32,6 +32,7 @@ export type Booking = {
   service: Service;
   date: Date;
   time: string;
+  endDate: Date;
   endTime: string;
   duration: ServiceDuration;
   customer: CustomerInfo;
@@ -71,35 +72,32 @@ export const calculateServiceEndTime = (startTime: string, duration: ServiceDura
   return minutesToTime(endMinutes);
 };
 
+// Add minutes to a date/time (date carries the day, timeString is HH:MM)
+const addMinutesToDate = (date: Date, timeString: string, minutesToAdd: number): Date => {
+  const [hours, mins] = timeString.split(":").map(Number);
+  const d = new Date(date);
+  d.setHours(hours, mins, 0, 0);
+  d.setMinutes(d.getMinutes() + minutesToAdd);
+  return d;
+};
+
 // Check if a staff member is booked at a specific time
 const isStaffBooked = (staffId: string, date: Date, startTime: string, duration: ServiceDuration): boolean => {
-  const checkStartMinutes = timeToMinutes(startTime);
-  const checkEndMinutes = checkStartMinutes + (duration.hours * 60 + duration.minutes);
-  
+  // Build Date objects for check interval
+  const checkStart = addMinutesToDate(date, startTime, 0);
+  const checkEnd = addMinutesToDate(date, startTime, duration.hours * 60 + duration.minutes);
+
   return bookings.some((booking) => {
     if (booking.assignedStaff !== staffId || booking.status === 'cancelled') {
       return false;
     }
-    
-    // Check if dates match
-    const bookingDate = new Date(booking.date);
-    if (
-      bookingDate.getFullYear() !== date.getFullYear() ||
-      bookingDate.getMonth() !== date.getMonth() ||
-      bookingDate.getDate() !== date.getDate()
-    ) {
-      return false;
-    }
-    
-    const bookingStartMinutes = timeToMinutes(booking.time);
-    const bookingEndMinutes = timeToMinutes(booking.endTime);
-    
-    // Check for time overlap
-    return (
-      (checkStartMinutes >= bookingStartMinutes && checkStartMinutes < bookingEndMinutes) ||
-      (checkEndMinutes > bookingStartMinutes && checkEndMinutes <= bookingEndMinutes) ||
-      (checkStartMinutes <= bookingStartMinutes && checkEndMinutes >= bookingEndMinutes)
-    );
+
+    // Booking interval (supports multi-day)
+    const bookingStart = addMinutesToDate(new Date(booking.date), booking.time, 0);
+    const bookingEnd = new Date(booking.endDate);
+
+    // Overlap if intervals intersect
+    return bookingStart < checkEnd && checkStart < bookingEnd;
   });
 };
 
@@ -119,22 +117,28 @@ export const getAvailableSlots = (service: Service, date: Date): TimeSlot[] => {
   
   // For multi-day services, only show morning slots
   if (service.duration.isMultiDay) {
+    // For multi-day services (1+ day), we'll offer start times in the morning window.
+    // Previously the code required the full service duration to fit within the morning
+    // window which meant very long services produced zero slots. Instead, allow
+    // starting times during the morning (e.g., 08:00 - 12:00) regardless of the
+    // total duration — the booking will span multiple days internally.
     const morningEnd = timeToMinutes('12:00');
     let currentTime = workingStart;
-    
-    while (currentTime + serviceDurationMinutes <= morningEnd) {
+
+    while (currentTime < morningEnd) {
       const timeString = minutesToTime(currentTime);
       const availableStaff = getAvailableStaffForSlot(date, timeString, service.duration);
-      
+
       slots.push({
         time: timeString,
         available: availableStaff.length > 0,
         availableStaff: availableStaff.length,
         highDemand: availableStaff.length <= 2 && availableStaff.length > 0,
       });
-      
+
       currentTime += 60; // 1-hour intervals
     }
+
     return slots;
   }
   
@@ -179,12 +183,16 @@ export const createReservation = (
   }
   
   const endTime = calculateServiceEndTime(time, service.duration);
-  
+  // Compute endDate (exact Date object) by adding duration minutes to start datetime
+  const durationMinutes = service.duration.hours * 60 + service.duration.minutes;
+  const endDateObj = addMinutesToDate(date, time, durationMinutes);
+
   const booking: Booking = {
     id: `booking_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     service,
     date,
     time,
+    endDate: endDateObj,
     endTime,
     duration: service.duration,
     customer,
@@ -225,27 +233,24 @@ export const generateWhatsAppMessage = (booking: Booking): string => {
     month: 'long',
     day: 'numeric',
   });
-  
-  const message = `✨ *Nouvelle réservation Carlita Locks*
+  const durationText = booking.duration.days ? `${booking.duration.days} jour${booking.duration.days > 1 ? 's' : ''}` : `${booking.duration.hours}h${booking.duration.minutes > 0 ? booking.duration.minutes : ''}`;
+  // If booking ends on a different day, include end date in the message
+  const endDateDifferent = booking.endDate && (
+    booking.endDate.getFullYear() !== booking.date.getFullYear() ||
+    booking.endDate.getMonth() !== booking.date.getMonth() ||
+    booking.endDate.getDate() !== booking.date.getDate()
+  );
 
-👤 *Client :* ${booking.customer.name}
-📱 *WhatsApp :* ${booking.customer.phone}
+  const endDateStr = booking.endDate.toLocaleDateString('fr-FR', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 
-💇‍♀️ *Service :* ${booking.service.name}
-💰 *Prix :* ${booking.service.price}
-⏱️ *Durée :* ${booking.duration.hours}h${booking.duration.minutes > 0 ? booking.duration.minutes : ''}
+  const dateLine = endDateDifferent ? `📅 *Date :* ${dateStr} → ${endDateStr}` : `📅 *Date :* ${dateStr}`;
 
-📅 *Date :* ${dateStr}
-🕐 *Heure :* ${booking.time} - ${booking.endTime}
-
-👩‍🔧 *Coiffeuse assignée :* ${booking.assignedStaff}
-
-${booking.customer.photo ? '📷 *Photo jointe :* Oui' : ''}
-${booking.customer.notes ? `📝 *Notes :* ${booking.customer.notes}` : ''}
-
-—————————————
-ID: ${booking.id}
-Statut: ${booking.status === 'confirmed' ? '✅ Confirmé' : '⏳ En attente'}`;
+  const message = `✨ *Nouvelle réservation Carlita Locks*\n\n👤 *Client :* ${booking.customer.name}\n📱 *WhatsApp :* ${booking.customer.phone}\n\n💇‍♀️ *Service :* ${booking.service.name}\n💰 *Prix :* ${booking.service.price}\n⏱️ *Durée :* ${durationText}\n\n${dateLine}\n🕐 *Heure :* ${booking.time} - ${booking.endTime}\n\n👩‍🔧 *Coiffeuse assignée :* ${booking.assignedStaff}\n\n${booking.customer.photo ? '📷 *Photo jointe :* Oui' : ''}\n${booking.customer.notes ? `📝 *Notes :* ${booking.customer.notes}` : ''}\n\n—————————————\nID: ${booking.id}\nStatut: ${booking.status === 'confirmed' ? '✅ Confirmé' : '⏳ En attente'}`;
 
   return message;
 };
@@ -273,13 +278,17 @@ export const cancelBooking = (bookingId: string): boolean => {
 // Get all bookings for a date
 export const getBookingsForDate = (date: Date): Booking[] => {
   return bookings.filter((booking) => {
-    const bookingDate = new Date(booking.date);
-    return (
-      bookingDate.getFullYear() === date.getFullYear() &&
-      bookingDate.getMonth() === date.getMonth() &&
-      bookingDate.getDate() === date.getDate() &&
-      booking.status !== 'cancelled'
-    );
+    if (booking.status === 'cancelled') return false;
+    const targetStart = new Date(date);
+    targetStart.setHours(0, 0, 0, 0);
+    const targetEnd = new Date(date);
+    targetEnd.setHours(23, 59, 59, 999);
+
+    const bookingStart = addMinutesToDate(new Date(booking.date), booking.time, 0);
+    const bookingEnd = new Date(booking.endDate);
+
+    // Return bookings that overlap the target date
+    return bookingStart <= targetEnd && bookingEnd >= targetStart;
   });
 };
 
