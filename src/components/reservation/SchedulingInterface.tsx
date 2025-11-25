@@ -75,10 +75,6 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
       return;
     }
 
-    if (requiresPhoto && !photo) {
-      toast.error("Une photo est requise pour ce service");
-      return;
-    }
 
     // Create booking for each service
     selectedServices.forEach((service) => {
@@ -187,7 +183,7 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
             disabled={(date) => {
               const today = new Date();
               today.setHours(0, 0, 0, 0);
-              return date < today || getAvailabilityForDate(date) === 0;
+              return date < today || date.getDay() === 0 || getAvailabilityForDate(date) === 0;
             }}
             className={cn("mx-auto pointer-events-auto")}
             modifiers={{
@@ -256,11 +252,6 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
                       Très demandé
                     </span>
                   )}
-                  {slot.available && (
-                    <span className="text-xs text-muted-foreground">
-                      {slot.availableStaff} coiffeuse{slot.availableStaff > 1 ? "s" : ""}
-                    </span>
-                  )}
                 </div>
               </Button>
             ))}
@@ -321,14 +312,13 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
                   <div className="space-y-2">
                     <Label htmlFor="photo" className="flex items-center gap-2">
                       <Upload className="w-4 h-4 text-primary" />
-                      Photo de vos cheveux *
+                      Photo de vos cheveux
                     </Label>
                     <Input
                       id="photo"
                       type="file"
                       accept="image/*"
                       onChange={handlePhotoUpload}
-                      required={requiresPhoto}
                       className="rounded-xl h-12"
                     />
                     <p className="text-xs text-muted-foreground">

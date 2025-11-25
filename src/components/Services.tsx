@@ -390,11 +390,11 @@ const Services = () => {
           <p className="text-accent-foreground/80 mb-6 max-w-xl mx-auto">
             Choisissez votre service préféré et réservez votre créneau en quelques clics
           </p>
-          <Link to="/reservation">
+          <a href="/reservation#services">
             <Button size="lg" variant="secondary" className="rounded-xl">
               Prendre rendez-vous
             </Button>
-          </Link>
+          </a>
         </div>
       </div>
     </section>

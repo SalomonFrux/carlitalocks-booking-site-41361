@@ -138,24 +138,6 @@ export const getAvailableSlots = (service: Service, date: Date): TimeSlot[] => {
     return slots;
   }
   
-  // For morning-only services (10h+)
-  if (service.duration.morningOnly) {
-    const currentTime = workingStart;
-    const serviceEndTime = currentTime + serviceDurationMinutes;
-    
-    if (serviceEndTime <= workingEnd) {
-      const timeString = minutesToTime(currentTime);
-      const availableStaff = getAvailableStaffForSlot(date, timeString, service.duration);
-      
-      slots.push({
-        time: timeString,
-        available: availableStaff.length > 0,
-        availableStaff: availableStaff.length,
-        highDemand: availableStaff.length <= 2 && availableStaff.length > 0,
-      });
-    }
-    return slots;
-  }
   
   // Regular services - generate slots every 30 minutes
   let currentTime = workingStart;
