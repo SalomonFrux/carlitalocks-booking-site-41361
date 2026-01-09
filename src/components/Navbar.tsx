@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Phone, Menu } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "@/assets/logo-carlitalocks.png";
+import logo from "@/assets/logo-carlitalocks.jpg";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
