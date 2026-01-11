@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import SalonShowcase from "@/components/SalonShowcase";
 import WhyChooseUs from "@/components/WhyChooseUs";
 import Services from "@/components/Services";
 import Gallery from "@/components/Gallery";
@@ -40,6 +41,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <Hero />
+      <SalonShowcase />
       <Services />
       <WhyChooseUs />
       <Gallery />
