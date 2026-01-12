@@ -276,16 +276,19 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
               disabled={(date) => {
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-                return date < today || date.getDay() === 0 || getAvailabilityForDate(date) === 0;
+                // Disable past dates, Sundays (0), Mondays (1), and fully booked days
+                return date < today || date.getDay() === 0 || date.getDay() === 1 || getAvailabilityForDate(date) === 0;
               }}
               className={cn("mx-auto pointer-events-auto")}
               modifiers={{
-                available: (date) => getAvailabilityForDate(date) > 0,
+                available: (date) => getAvailabilityForDate(date) > 0 && date.getDay() !== 1,
                 sunday: (date) => date.getDay() === 0,
+                monday: (date) => date.getDay() === 1,
               }}
               modifiersClassNames={{
                 available: "bg-primary/10 font-semibold",
                 sunday: "text-red-500",
+                monday: "text-red-500 line-through",
               }}
             />
 
@@ -308,7 +311,13 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
                       <p>C'est sur rendez-vous</p>
                     </TooltipContent>
                   </Tooltip>
-                  <span className="text-muted-foreground">Dimanches</span>
+                  <span className="text-muted-foreground">Dimanches (sur RDV)</span>
+                </div>
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 rounded bg-red-500/20 flex items-center justify-center">
+                    <span className="text-red-500 text-xs">—</span>
+                  </div>
+                  <span className="text-muted-foreground">Lundis (fermé)</span>
                 </div>
               </TooltipProvider>
             </div>
