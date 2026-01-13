@@ -8,7 +8,7 @@ const scheduleData = [
   { day: "Jeudi", status: "Ouvert", hours: "08h30 - 20h00" },
   { day: "Vendredi", status: "Ouvert", hours: "08h30 - 20h00" },
   { day: "Samedi", status: "Ouvert", hours: "08h30 - 20h00" },
-  { day: "Dimanche", status: "Cas urgents", hours: "Sur rendez-vous" },
+  { day: "Dimanche", status: "Cas urgents", hours: "Pour les cas d'urgences" },
 ];
 
 const Schedule = () => {
