@@ -308,10 +308,10 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
                       <div className="w-4 h-4 rounded bg-red-500/20" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>C'est sur rendez-vous</p>
+                      <p>Pour les cas d'urgences</p>
                     </TooltipContent>
                   </Tooltip>
-                  <span className="text-muted-foreground">Dimanches (sur RDV)</span>
+                  <span className="text-muted-foreground">Dimanches (urgences)</span>
                 </div>
                 <div className="flex items-center justify-center gap-2">
                   <div className="w-4 h-4 rounded bg-red-500/20 flex items-center justify-center">
