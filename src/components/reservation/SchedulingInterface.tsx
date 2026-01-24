@@ -116,14 +116,13 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
             <div className="space-y-2">
               <Label htmlFor="photo" className="flex items-center gap-2">
                 <Upload className="w-4 h-4 text-primary" />
-                Photo de vos cheveux *
+                Photo de vos cheveux (optionnel)
               </Label>
               <Input
                 id="photo"
                 type="file"
                 accept="image/*"
                 onChange={handlePhotoUpload}
-                required={requiresPhoto}
                 className="rounded-xl h-12"
               />
               <p className="text-xs text-muted-foreground">
@@ -164,10 +163,7 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
       return;
     }
 
-    if (requiresPhoto && !photo) {
-      toast.error("Une photo est requise pour ce service");
-      return;
-    }
+    // Photo is now optional - no validation needed
 
     // Create booking for each service
     selectedServices.forEach((service) => {
