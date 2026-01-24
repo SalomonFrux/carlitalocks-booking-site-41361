@@ -12,6 +12,7 @@ import {
   createReservation, 
   sendWhatsAppNotification,
   calculateTotalDuration,
+  isDateFullyBooked,
   TimeSlot 
 } from "@/lib/reservationEngine";
 import { Calendar as CalendarIcon, Clock, User, Phone, Upload, Flame, CheckCircle2 } from "lucide-react";
@@ -272,8 +273,8 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
               disabled={(date) => {
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-                // Disable past dates, Sundays (0), Mondays (1), and fully booked days
-                return date < today || date.getDay() === 0 || date.getDay() === 1 || getAvailabilityForDate(date) === 0;
+                // Disable past dates, Sundays (0), Mondays (1), fully booked days, and dates with max bookings
+                return date < today || date.getDay() === 0 || date.getDay() === 1 || getAvailabilityForDate(date) === 0 || isDateFullyBooked(date);
               }}
               className={cn("mx-auto pointer-events-auto")}
               modifiers={{

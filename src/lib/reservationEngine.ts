@@ -292,6 +292,35 @@ export const getBookingsForDate = (date: Date): Booking[] => {
   });
 };
 
+// Check if a date is fully booked based on service duration rules
+// - Short services (15min to 10h): max 5 bookings per date
+// - Long services (>10h or multi-day): max 3 bookings per date
+export const isDateFullyBooked = (date: Date): boolean => {
+  const dateBookings = getBookingsForDate(date);
+  
+  if (dateBookings.length === 0) return false;
+  
+  // Count short bookings (up to 10 hours)
+  const shortBookings = dateBookings.filter((b) => {
+    const durationMinutes = b.duration.hours * 60 + b.duration.minutes;
+    return durationMinutes <= 600 && !b.duration.isMultiDay; // 600 minutes = 10 hours
+  });
+  
+  // Count long bookings (more than 10 hours or multi-day)
+  const longBookings = dateBookings.filter((b) => {
+    const durationMinutes = b.duration.hours * 60 + b.duration.minutes;
+    return durationMinutes > 600 || b.duration.isMultiDay;
+  });
+  
+  // If 5 short bookings, date is full
+  if (shortBookings.length >= 5) return true;
+  
+  // If 3 long bookings, date is full
+  if (longBookings.length >= 3) return true;
+  
+  return false;
+};
+
 // Calculate total duration for multiple services
 export const calculateTotalDuration = (services: Service[]): ServiceDuration => {
   let totalMinutes = 0;
@@ -315,4 +344,5 @@ export const ReservationAPI = {
   cancelBooking,
   getBookingsForDate,
   calculateTotalDuration,
+  isDateFullyBooked,
 };
