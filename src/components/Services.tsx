@@ -5,8 +5,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button";
-import { Clock, Sparkles } from "lucide-react";
+import { Clock, Sparkles, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+
+// Categories that should show the "Contact us" badge
+const CONTACT_CATEGORIES = ["À LA UNE", "SOINS LOCKS", "COIFFAGE", "BOUCLAGE DES LOCKS"];
 
 type ServiceCategory = {
   title: string;
@@ -214,7 +217,7 @@ const serviceCategories: ServiceCategory[] = [
     ],
   },
   {
-    title: "TWIST",
+    title: "PALM ROLLING",
     services: [
       {
         name: "Retwist (100 à 200 locks)",
@@ -331,10 +334,18 @@ const Services = () => {
               style={{ animationDelay: `${categoryIndex * 0.1}s` }}
             >
               <AccordionTrigger className="p-6 text-left hover:no-underline">
-                <h3 className="text-xl md:text-2xl font-semibold text-foreground flex items-center gap-3">
-                  {category.title === "À LA UNE" && <Sparkles className="w-6 h-6 text-primary" />}
-                  {category.title}
-                </h3>
+                <div className="flex flex-col gap-2 w-full">
+                  {CONTACT_CATEGORIES.includes(category.title) && (
+                    <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-destructive animate-pulse">
+                      <MessageCircle className="w-4 h-4" />
+                      Contactez-nous directement
+                    </span>
+                  )}
+                  <h3 className="text-xl md:text-2xl font-semibold text-foreground flex items-center gap-3">
+                    {category.title === "À LA UNE" && <Sparkles className="w-6 h-6 text-primary" />}
+                    {category.title}
+                  </h3>
+                </div>
               </AccordionTrigger>
               <AccordionContent className="p-6 pt-0">
                 {/* Warning Badge */}
