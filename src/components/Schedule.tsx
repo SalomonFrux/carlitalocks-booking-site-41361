@@ -3,7 +3,7 @@ import { Clock, Calendar } from "lucide-react";
 
 const scheduleData = [
   { day: "Lundi", status: "Fermé", hours: null },
-  { day: "Mardi", status: "Ouvert", hours: "08h30 - 20h00" },
+  { day: "Mardi", status: "Ouvert", hours: "10h00 - 20h00" },
   { day: "Mercredi", status: "Ouvert", hours: "08h30 - 20h00" },
   { day: "Jeudi", status: "Ouvert", hours: "08h30 - 20h00" },
   { day: "Vendredi", status: "Ouvert", hours: "08h30 - 20h00" },
