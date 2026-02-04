@@ -20,9 +20,6 @@ export type Service = {
 };
 
 export const SERVICE_DURATIONS: Record<string, ServiceDuration> = {
-  // À LA UNE
-  'consultation': { hours: 1, minutes: 0, maxHours: 2 },
-  
   // INSTALLATIONS - Microlocks Vanille
   'microlocks-longs': { hours: 7, minutes: 30, maxHours: 8 },
   'microlocks-milongs': { hours: 5, minutes: 0, maxHours: 6 },
@@ -47,6 +44,9 @@ export const SERVICE_DURATIONS: Record<string, ServiceDuration> = {
   'sisterlocks-longs': { hours: 24, minutes: 0, isMultiDay: true, days: 2 },
   'sisterlocks-milongs': { hours: 36, minutes: 0, isMultiDay: true, days: 2 },
   'sisterlocks-courts': { hours: 8, minutes: 0, maxHours: 10 },
+
+  // Installation avec extensions
+  'installation-extensions': { hours: 0, minutes: 0 },
   
   // RESSERRAGE
   'resserrage-trad': { hours: 2, minutes: 30, maxHours: 3 },
@@ -55,35 +55,16 @@ export const SERVICE_DURATIONS: Record<string, ServiceDuration> = {
   'resserrage-micro-400': { hours: 3, minutes: 30, maxHours: 4 },
   'resserrage-micro-500': { hours: 3, minutes: 30, maxHours: 4 },
   'resserrage-sister': { hours: 4, minutes: 0, maxHours: 5 },
-  
-  // TWIST & SOINS
+
+  // Défaire locks
+  'defaire-locks': { hours: 0, minutes: 0 },
+
+  // PALM ROLLING
   'retwist-200': { hours: 2, minutes: 0, maxHours: 3 },
   'retwist-100': { hours: 1, minutes: 30, maxHours: 2 },
-  'shampoing-adulte': { hours: 0, minutes: 15, maxHours: 1 },
-  'shampoing-enfant': { hours: 0, minutes: 15, maxHours: 1 },
-  'shampoing-soins': { hours: 0, minutes: 45, maxHours: 1 },
-  'detox': { hours: 1, minutes: 0, maxHours: 2 },
-  
-  // COIFFAGE
-  'coiffure-protectrice': { hours: 0, minutes: 15, maxHours: 1 },
-  'chignon-simple': { hours: 0, minutes: 30, maxHours: 1 },
-  'chignon-elabore': { hours: 0, minutes: 45, maxHours: 1 },
-  'bouclage-court': { hours: 1, minutes: 0, maxHours: 2 },
-  'bouclage-milongs': { hours: 1, minutes: 30, maxHours: 2 },
-  'bouclage-longs': { hours: 2, minutes: 0, maxHours: 3 },
 };
 
 export const SERVICES: Service[] = [
-  // À LA UNE
-  {
-    id: "consultation",
-    name: "Consultation sur mesure",
-    category: "À LA UNE",
-    price: "10 000 F CFA",
-    duration: SERVICE_DURATIONS.consultation,
-    requiresPhoto: false,
-  },
-  
   // INSTALLATIONS - Microlocks Vanille
   {
     id: "microlocks-longs",
@@ -213,6 +194,16 @@ export const SERVICES: Service[] = [
     duration: SERVICE_DURATIONS['sisterlocks-courts'],
     requiresPhoto: true,
   },
+
+  // Installation avec extensions
+  {
+    id: "installation-extensions",
+    name: "Devis personnalisé",
+    category: "Installation Locks/ Microlocks avec extensions",
+    price: "Sur devis",
+    duration: SERVICE_DURATIONS['installation-extensions'],
+    requiresPhoto: true,
+  },
   
   // RESSERRAGE
   {
@@ -257,12 +248,21 @@ export const SERVICES: Service[] = [
     price: "À partir de 20 000 F CFA",
     duration: SERVICE_DURATIONS['resserrage-sister'],
   },
+
+  // Défaire locks
+  {
+    id: "defaire-locks",
+    name: "Défaire ses locks/ Microlocks/ Sisterlocks",
+    category: "Défaire ses locks",
+    price: "Sur devis",
+    duration: SERVICE_DURATIONS['defaire-locks'],
+  },
   
-  // TWIST & SOINS
+  // PALM ROLLING
   {
     id: "retwist-200",
     name: "Retwist (100-200 locks)",
-    category: "Twist & Soins",
+    category: "Palm Rolling",
     price: "À partir de 10 000 F CFA",
     duration: SERVICE_DURATIONS['retwist-200'],
     description: "Tournage de locks avec ou sans gel",
@@ -270,97 +270,23 @@ export const SERVICES: Service[] = [
   {
     id: "retwist-100",
     name: "Retwist (moins de 100 locks)",
-    category: "Twist & Soins",
+    category: "Palm Rolling",
     price: "À partir de 8 000 F CFA",
     duration: SERVICE_DURATIONS['retwist-100'],
     description: "Tournage de locks avec ou sans gel",
   },
-  {
-    id: "shampoing-adulte",
-    name: "Shampoing simple (Adulte)",
-    category: "Twist & Soins",
-    price: "À partir de 2 500 F CFA",
-    duration: SERVICE_DURATIONS['shampoing-adulte'],
-    description: "Shampoing soins hydratant + massage crânien",
-  },
-  {
-    id: "shampoing-enfant",
-    name: "Shampoing simple (Enfant)",
-    category: "Twist & Soins",
-    price: "À partir de 2 000 F CFA",
-    duration: SERVICE_DURATIONS['shampoing-enfant'],
-    description: "Shampoing soins hydratant + massage crânien",
-  },
-  {
-    id: "shampoing-soins",
-    name: "Shampoing hydratant + soins",
-    category: "Twist & Soins",
-    price: "À partir de 7 000 F CFA",
-    duration: SERVICE_DURATIONS['shampoing-soins'],
-  },
-  {
-    id: "detox",
-    name: "Détox locks/microlocks",
-    category: "Twist & Soins",
-    price: "À partir de 7 000 F CFA",
-    duration: SERVICE_DURATIONS.detox,
-  },
-  
-  // COIFFAGE
-  {
-    id: "coiffure-protectrice",
-    name: "Coiffure protectrice",
-    category: "Coiffage",
-    price: "À partir de 1 000 F CFA",
-    duration: SERVICE_DURATIONS['coiffure-protectrice'],
-  },
-  {
-    id: "chignon-simple",
-    name: "Chignon simple",
-    category: "Coiffage",
-    price: "À partir de 2 000 F CFA",
-    duration: SERVICE_DURATIONS['chignon-simple'],
-  },
-  {
-    id: "chignon-elabore",
-    name: "Chignon élaboré",
-    category: "Coiffage",
-    price: "À partir de 3 000 F CFA",
-    duration: SERVICE_DURATIONS['chignon-elabore'],
-  },
-  {
-    id: "bouclage-court",
-    name: "Bouclage locks courtes (20cm)",
-    category: "Coiffage",
-    price: "À partir de 5 000 F CFA",
-    duration: SERVICE_DURATIONS['bouclage-court'],
-  },
-  {
-    id: "bouclage-milongs",
-    name: "Bouclage locks mi-longs (40cm)",
-    category: "Coiffage",
-    price: "À partir de 7 000 F CFA",
-    duration: SERVICE_DURATIONS['bouclage-milongs'],
-  },
-  {
-    id: "bouclage-longs",
-    name: "Bouclage locks longs (60cm)",
-    category: "Coiffage",
-    price: "À partir de 10 000 F CFA",
-    duration: SERVICE_DURATIONS['bouclage-longs'],
-  },
 ];
 
 export const CATEGORIES = [
-  "À LA UNE",
   "Installation Microlocks",
   "Installation Traditionnelle",
   "Installation Minilocks",
   "Installation Microlocks Interlocks",
   "Installation Sisterlocks",
+  "Installation Locks/ Microlocks avec extensions",
   "Resserrage",
-  "Twist & Soins",
-  "Coiffage",
+  "Défaire ses locks",
+  "Palm Rolling",
 ];
 
 export const CATEGORY_WARNINGS: Record<string, string> = {
