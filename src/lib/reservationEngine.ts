@@ -109,58 +109,20 @@ export const getAvailableStaffForSlot = (date: Date, startTime: string, duration
 };
 
 // Generate time slots for a specific service and date
+// Only two fixed time slots: 8h30 and 15h00
 export const getAvailableSlots = (service: Service, date: Date): TimeSlot[] => {
-  const slots: TimeSlot[] = [];
-  const workingStart = timeToMinutes(STAFF_CONFIG.workingHours.start);
-  const workingEnd = timeToMinutes(STAFF_CONFIG.workingHours.end);
-  const serviceDurationMinutes = service.duration.hours * 60 + service.duration.minutes;
+  const fixedSlots = ['08:30', '15:00'];
   
-  // For multi-day services, only show morning slots
-  if (service.duration.isMultiDay) {
-    // For multi-day services (1+ day), we'll offer start times in the morning window.
-    // Previously the code required the full service duration to fit within the morning
-    // window which meant very long services produced zero slots. Instead, allow
-    // starting times during the morning (e.g., 08:00 - 12:00) regardless of the
-    // total duration — the booking will span multiple days internally.
-    const morningEnd = timeToMinutes('12:00');
-    let currentTime = workingStart;
-
-    while (currentTime < morningEnd) {
-      const timeString = minutesToTime(currentTime);
-      const availableStaff = getAvailableStaffForSlot(date, timeString, service.duration);
-
-      slots.push({
-        time: timeString,
-        available: availableStaff.length > 0,
-        availableStaff: availableStaff.length,
-        highDemand: availableStaff.length <= 2 && availableStaff.length > 0,
-      });
-
-      currentTime += 60; // 1-hour intervals
-    }
-
-    return slots;
-  }
-  
-  
-  // Regular services - generate slots every 30 minutes
-  let currentTime = workingStart;
-  
-  while (currentTime + serviceDurationMinutes <= workingEnd) {
-    const timeString = minutesToTime(currentTime);
+  return fixedSlots.map((timeString) => {
     const availableStaff = getAvailableStaffForSlot(date, timeString, service.duration);
     
-    slots.push({
+    return {
       time: timeString,
       available: availableStaff.length > 0,
       availableStaff: availableStaff.length,
       highDemand: availableStaff.length <= 2 && availableStaff.length > 0,
-    });
-    
-    currentTime += 30; // 30-minute intervals
-  }
-  
-  return slots;
+    };
+  });
 };
 
 // Assign first available staff member
