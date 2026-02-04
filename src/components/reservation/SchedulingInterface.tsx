@@ -13,7 +13,8 @@ import {
   sendWhatsAppNotification,
   calculateTotalDuration,
   isDateFullyBooked,
-  TimeSlot 
+  TimeSlot,
+  SLOT_CAPACITY
 } from "@/lib/reservationEngine";
 import { Calendar as CalendarIcon, Clock, User, Phone, Upload, Flame, CheckCircle2 } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger, DialogOverlay, DialogClose, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -50,11 +51,19 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
     setSelectedTime("");
     
     if (date && selectedServices.length > 0) {
-      // For simplicity, get slots for the first service
-      // In production, you'd need to handle multiple services differently
       const slots = getAvailableSlots(selectedServices[0], date);
       setAvailableSlots(slots);
-      toast.success(`Date sélectionnée: ${date.toLocaleDateString("fr-FR")}`);
+      
+      // Auto-switch logic: if 08:30 is full, auto-select 15:00 if available
+      const slot830 = slots.find(s => s.time === '08:30');
+      const slot1500 = slots.find(s => s.time === '15:00');
+      
+      if (slot830?.isFull && slot1500?.available) {
+        setSelectedTime('15:00');
+        toast.success(`Date sélectionnée: ${date.toLocaleDateString("fr-FR")} - Créneau 15:00 auto-sélectionné`);
+      } else {
+        toast.success(`Date sélectionnée: ${date.toLocaleDateString("fr-FR")}`);
+      }
     }
   };
 
@@ -330,20 +339,31 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
                 <p className="text-muted-foreground">Créneaux disponibles pour le {selectedDate.toLocaleDateString("fr-FR")}</p>
               </div>
 
-              <div className="max-w-3xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="max-w-3xl mx-auto grid grid-cols-2 gap-6">
                 {availableSlots.map((slot) => (
                   <Button
                     key={slot.time}
                     variant={selectedTime === slot.time ? "default" : "outline"}
-                    disabled={!slot.available}
+                    disabled={!slot.available || slot.isFull}
                     onClick={() => handleTimeSelect(slot.time)}
-                    className="h-20 rounded-[16px] relative overflow-hidden"
+                    className={cn(
+                      "h-24 rounded-[16px] relative overflow-hidden transition-all",
+                      slot.isFull && "opacity-60 cursor-not-allowed"
+                    )}
                   >
-                    <div className="flex flex-col items-center gap-1">
-                      <span className="text-lg font-bold">{slot.time}</span>
-                      {slot.highDemand && slot.available && (
+                    <div className="flex flex-col items-center gap-2">
+                      <span className="text-xl font-bold">{slot.time}</span>
+                      {slot.isFull ? (
+                        <span className="text-xs text-destructive font-medium">
+                          Créneau complet
+                        </span>
+                      ) : slot.highDemand && slot.available ? (
                         <span className="flex items-center gap-1 text-xs text-warning">
                           <Flame className="w-3 h-3" /> Très demandé
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">
+                          {SLOT_CAPACITY.maxPerSlot - slot.reservationCount} place{SLOT_CAPACITY.maxPerSlot - slot.reservationCount > 1 ? 's' : ''} restante{SLOT_CAPACITY.maxPerSlot - slot.reservationCount > 1 ? 's' : ''}
                         </span>
                       )}
                     </div>
