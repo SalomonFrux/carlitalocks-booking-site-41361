@@ -13,6 +13,7 @@ import {
   sendWhatsAppNotification,
   calculateTotalDuration,
   isDateFullyBooked,
+  getSlotsForDay,
   TimeSlot,
   SLOT_CAPACITY
 } from "@/lib/reservationEngine";
@@ -54,15 +55,28 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
       const slots = getAvailableSlots(selectedServices[0], date);
       setAvailableSlots(slots);
       
-      // Auto-switch logic: if 08:30 is full, auto-select 15:00 if available
-      const slot830 = slots.find(s => s.time === '08:30');
-      const slot1500 = slots.find(s => s.time === '15:00');
+      const dayOfWeek = date.getDay();
       
-      if (slot830?.isFull && slot1500?.available) {
-        setSelectedTime('15:00');
-        toast.success(`Date sélectionnée: ${date.toLocaleDateString("fr-FR")} - Créneau 15:00 auto-sélectionné`);
+      // Tuesday: only one slot (10:00), auto-select if available
+      if (dayOfWeek === 2) {
+        const slot1000 = slots.find(s => s.time === '10:00');
+        if (slot1000?.available) {
+          setSelectedTime('10:00');
+          toast.success(`Date sélectionnée: ${date.toLocaleDateString("fr-FR")} - Créneau 10:00 auto-sélectionné`);
+        } else {
+          toast.success(`Date sélectionnée: ${date.toLocaleDateString("fr-FR")}`);
+        }
       } else {
-        toast.success(`Date sélectionnée: ${date.toLocaleDateString("fr-FR")}`);
+        // Wednesday-Saturday: auto-switch logic for 08:30 and 15:00
+        const slot830 = slots.find(s => s.time === '08:30');
+        const slot1500 = slots.find(s => s.time === '15:00');
+        
+        if (slot830?.isFull && slot1500?.available) {
+          setSelectedTime('15:00');
+          toast.success(`Date sélectionnée: ${date.toLocaleDateString("fr-FR")} - Créneau 15:00 auto-sélectionné`);
+        } else {
+          toast.success(`Date sélectionnée: ${date.toLocaleDateString("fr-FR")}`);
+        }
       }
     }
   };

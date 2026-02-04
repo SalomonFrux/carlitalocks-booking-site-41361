@@ -32,8 +32,36 @@ export type TimeSlot = {
 // Slot capacity configuration
 export const SLOT_CAPACITY = {
   maxPerSlot: 4,
-  maxPerDate: 8,
+  maxPerDate: 8, // Will be adjusted dynamically for Tuesdays (only 1 slot)
   fixedSlots: ['08:30', '15:00'] as const,
+  tuesdaySlot: '10:00' as const,
+};
+
+// Get available slots based on day of week
+// Tuesday (day 2): only 10:00
+// Wednesday-Saturday (days 3-6): 08:30 and 15:00
+export const getSlotsForDay = (date: Date): string[] => {
+  const dayOfWeek = date.getDay();
+  
+  // Tuesday = 2
+  if (dayOfWeek === 2) {
+    return [SLOT_CAPACITY.tuesdaySlot]; // 10:00 only
+  }
+  
+  // Wednesday = 3, Thursday = 4, Friday = 5, Saturday = 6
+  if (dayOfWeek >= 3 && dayOfWeek <= 6) {
+    return [...SLOT_CAPACITY.fixedSlots]; // 08:30 and 15:00
+  }
+  
+  // Sunday (0) and Monday (1) are closed
+  return [];
+};
+
+// Get max capacity for a date (4 for Tuesday, 8 for other days)
+export const getMaxCapacityForDate = (date: Date): number => {
+  const dayOfWeek = date.getDay();
+  if (dayOfWeek === 2) return 4; // Tuesday: only 1 slot
+  return 8; // Other days: 2 slots
 };
 
 export type Booking = {
@@ -134,9 +162,12 @@ export const isSlotFull = (date: Date, slotTime: string): boolean => {
 };
 
 // Generate time slots for a specific service and date
-// Only two fixed time slots: 8h30 and 15h00, max 4 reservations per slot
+// Tuesday: only 10:00 slot
+// Wednesday-Saturday: 08:30 and 15:00 slots
 export const getAvailableSlots = (service: Service, date: Date): TimeSlot[] => {
-  return SLOT_CAPACITY.fixedSlots.map((timeString) => {
+  const slotsForDay = getSlotsForDay(date);
+  
+  return slotsForDay.map((timeString) => {
     const availableStaff = getAvailableStaffForSlot(date, timeString, service.duration);
     const reservationCount = getSlotReservationCount(date, timeString);
     const isFull = reservationCount >= SLOT_CAPACITY.maxPerSlot;
@@ -282,18 +313,20 @@ export const getBookingsForDate = (date: Date): Booking[] => {
 };
 
 // Check if a date is fully booked
-// Both slots must have 4 reservations each (8 total) for the date to be full
+// Tuesday: 4 reservations max (1 slot)
+// Other days: 8 reservations max (2 slots)
 export const isDateFullyBooked = (date: Date): boolean => {
   const totalReservations = getDateReservationCount(date);
+  const maxCapacity = getMaxCapacityForDate(date);
   
-  // Date is full if we have 8 reservations (4 per slot)
-  if (totalReservations >= SLOT_CAPACITY.maxPerDate) return true;
+  // Date is full if we have reached max capacity
+  if (totalReservations >= maxCapacity) return true;
   
-  // Also check if both slots are individually full
-  const slot1Full = isSlotFull(date, SLOT_CAPACITY.fixedSlots[0]);
-  const slot2Full = isSlotFull(date, SLOT_CAPACITY.fixedSlots[1]);
+  // Also check if all slots for this day are individually full
+  const slotsForDay = getSlotsForDay(date);
+  const allSlotsFull = slotsForDay.every((slot) => isSlotFull(date, slot));
   
-  return slot1Full && slot2Full;
+  return allSlotsFull;
 };
 
 // Calculate total duration for multiple services
@@ -323,5 +356,7 @@ export const ReservationAPI = {
   getSlotReservationCount,
   getDateReservationCount,
   isSlotFull,
+  getSlotsForDay,
+  getMaxCapacityForDate,
   SLOT_CAPACITY,
 };
