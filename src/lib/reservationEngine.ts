@@ -25,6 +25,15 @@ export type TimeSlot = {
   available: boolean;
   availableStaff: number;
   highDemand: boolean;
+  reservationCount: number;
+  isFull: boolean;
+};
+
+// Slot capacity configuration
+export const SLOT_CAPACITY = {
+  maxPerSlot: 4,
+  maxPerDate: 8,
+  fixedSlots: ['08:30', '15:00'] as const,
 };
 
 export type Booking = {
@@ -108,19 +117,37 @@ export const getAvailableStaffForSlot = (date: Date, startTime: string, duration
   });
 };
 
+// Get reservation count for a specific slot
+export const getSlotReservationCount = (date: Date, slotTime: string): number => {
+  const dateBookings = getBookingsForDate(date);
+  return dateBookings.filter((booking) => booking.time === slotTime).length;
+};
+
+// Get total reservation count for a date
+export const getDateReservationCount = (date: Date): number => {
+  return getBookingsForDate(date).length;
+};
+
+// Check if a specific slot is full (4 reservations max)
+export const isSlotFull = (date: Date, slotTime: string): boolean => {
+  return getSlotReservationCount(date, slotTime) >= SLOT_CAPACITY.maxPerSlot;
+};
+
 // Generate time slots for a specific service and date
-// Only two fixed time slots: 8h30 and 15h00
+// Only two fixed time slots: 8h30 and 15h00, max 4 reservations per slot
 export const getAvailableSlots = (service: Service, date: Date): TimeSlot[] => {
-  const fixedSlots = ['08:30', '15:00'];
-  
-  return fixedSlots.map((timeString) => {
+  return SLOT_CAPACITY.fixedSlots.map((timeString) => {
     const availableStaff = getAvailableStaffForSlot(date, timeString, service.duration);
+    const reservationCount = getSlotReservationCount(date, timeString);
+    const isFull = reservationCount >= SLOT_CAPACITY.maxPerSlot;
     
     return {
       time: timeString,
-      available: availableStaff.length > 0,
+      available: availableStaff.length > 0 && !isFull,
       availableStaff: availableStaff.length,
-      highDemand: availableStaff.length <= 2 && availableStaff.length > 0,
+      highDemand: reservationCount >= 3 && !isFull, // 3/4 reservations = high demand
+      reservationCount,
+      isFull,
     };
   });
 };
@@ -254,33 +281,19 @@ export const getBookingsForDate = (date: Date): Booking[] => {
   });
 };
 
-// Check if a date is fully booked based on service duration rules
-// - Short services (15min to 10h): max 5 bookings per date
-// - Long services (>10h or multi-day): max 3 bookings per date
+// Check if a date is fully booked
+// Both slots must have 4 reservations each (8 total) for the date to be full
 export const isDateFullyBooked = (date: Date): boolean => {
-  const dateBookings = getBookingsForDate(date);
+  const totalReservations = getDateReservationCount(date);
   
-  if (dateBookings.length === 0) return false;
+  // Date is full if we have 8 reservations (4 per slot)
+  if (totalReservations >= SLOT_CAPACITY.maxPerDate) return true;
   
-  // Count short bookings (up to 10 hours)
-  const shortBookings = dateBookings.filter((b) => {
-    const durationMinutes = b.duration.hours * 60 + b.duration.minutes;
-    return durationMinutes <= 600 && !b.duration.isMultiDay; // 600 minutes = 10 hours
-  });
+  // Also check if both slots are individually full
+  const slot1Full = isSlotFull(date, SLOT_CAPACITY.fixedSlots[0]);
+  const slot2Full = isSlotFull(date, SLOT_CAPACITY.fixedSlots[1]);
   
-  // Count long bookings (more than 10 hours or multi-day)
-  const longBookings = dateBookings.filter((b) => {
-    const durationMinutes = b.duration.hours * 60 + b.duration.minutes;
-    return durationMinutes > 600 || b.duration.isMultiDay;
-  });
-  
-  // If 5 short bookings, date is full
-  if (shortBookings.length >= 5) return true;
-  
-  // If 3 long bookings, date is full
-  if (longBookings.length >= 3) return true;
-  
-  return false;
+  return slot1Full && slot2Full;
 };
 
 // Calculate total duration for multiple services
@@ -307,4 +320,8 @@ export const ReservationAPI = {
   getBookingsForDate,
   calculateTotalDuration,
   isDateFullyBooked,
+  getSlotReservationCount,
+  getDateReservationCount,
+  isSlotFull,
+  SLOT_CAPACITY,
 };
