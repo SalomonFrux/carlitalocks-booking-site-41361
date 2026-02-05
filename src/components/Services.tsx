@@ -9,7 +9,7 @@ import { Clock, Sparkles, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 // Categories that should show the "Contact us" badge
-const CONTACT_CATEGORIES = ["À LA UNE", "SOINS LOCKS", "COIFFAGE", "BOUCLAGE DES LOCKS"];
+const CONTACT_CATEGORIES = ["À LA UNE", "SOINS LOCKS", "COIFFAGE", "BOUCLAGE DES LOCKS", "DEFAIRE SES LOCKS/MICROLOCKS/SISTERLOCKS"];
 
 type ServiceCategory = {
   title: string;
