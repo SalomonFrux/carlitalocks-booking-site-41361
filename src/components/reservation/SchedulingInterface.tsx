@@ -14,6 +14,7 @@ import {
   calculateTotalDuration,
   isDateFullyBooked,
   getSlotsForDay,
+  hasLongServiceBooking,
   TimeSlot,
   SLOT_CAPACITY
 } from "@/lib/reservationEngine";
@@ -346,7 +347,7 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
           </Card>
 
           {/* Time Selection (keeps near the calendar so user doesn't need to scroll far) */}
-          {selectedDate && availableSlots.length > 0 && (
+          {selectedDate && availableSlots.length > 0 && !hasLongServiceBooking(selectedDate) && (
             <section className="animate-fade-in">
               <div className="text-center mb-4">
                 <h3 className="text-2xl font-bold text-foreground mb-2 flex items-center justify-center gap-2">
@@ -405,6 +406,20 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
                 </div>
               )}
             </section>
+          )}
+
+          {/* Message when date is blocked by a long service */}
+          {selectedDate && hasLongServiceBooking(selectedDate) && (
+            <Card className="rounded-[24px] bg-destructive/10 border-destructive/20 animate-fade-in">
+              <CardContent className="p-6 text-center">
+                <p className="text-destructive font-medium">
+                  Cette date est complètement réservée pour une prestation longue durée.
+                </p>
+                <p className="text-muted-foreground text-sm mt-2">
+                  Veuillez sélectionner une autre date disponible.
+                </p>
+              </CardContent>
+            </Card>
           )}
         </div>
 
