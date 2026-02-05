@@ -57,12 +57,14 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
       
       const dayOfWeek = date.getDay();
       
-      // Tuesday: only one slot (10:00), auto-select if available
+      // Tuesday: two slots (10:00 and 15:00), auto-switch logic
       if (dayOfWeek === 2) {
         const slot1000 = slots.find(s => s.time === '10:00');
-        if (slot1000?.available) {
-          setSelectedTime('10:00');
-          toast.success(`Date sélectionnée: ${date.toLocaleDateString("fr-FR")} - Créneau 10:00 auto-sélectionné`);
+        const slot1500 = slots.find(s => s.time === '15:00');
+        
+        if (slot1000?.isFull && slot1500?.available) {
+          setSelectedTime('15:00');
+          toast.success(`Date sélectionnée: ${date.toLocaleDateString("fr-FR")} - Créneau 15:00 auto-sélectionné`);
         } else {
           toast.success(`Date sélectionnée: ${date.toLocaleDateString("fr-FR")}`);
         }

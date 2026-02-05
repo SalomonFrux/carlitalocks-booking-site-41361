@@ -35,17 +35,18 @@ export const SLOT_CAPACITY = {
   maxPerDate: 8, // Will be adjusted dynamically for Tuesdays (only 1 slot)
   fixedSlots: ['08:30', '15:00'] as const,
   tuesdaySlot: '10:00' as const,
+  tuesdaySlots: ['10:00', '15:00'] as const,
 };
 
 // Get available slots based on day of week
-// Tuesday (day 2): only 10:00
+// Tuesday (day 2): 10:00 and 15:00
 // Wednesday-Saturday (days 3-6): 08:30 and 15:00
 export const getSlotsForDay = (date: Date): string[] => {
   const dayOfWeek = date.getDay();
   
   // Tuesday = 2
   if (dayOfWeek === 2) {
-    return [SLOT_CAPACITY.tuesdaySlot]; // 10:00 only
+    return [...SLOT_CAPACITY.tuesdaySlots]; // 10:00 and 15:00
   }
   
   // Wednesday = 3, Thursday = 4, Friday = 5, Saturday = 6
@@ -57,11 +58,9 @@ export const getSlotsForDay = (date: Date): string[] => {
   return [];
 };
 
-// Get max capacity for a date (4 for Tuesday, 8 for other days)
+// Get max capacity for a date (8 for all working days - 2 slots each)
 export const getMaxCapacityForDate = (date: Date): number => {
-  const dayOfWeek = date.getDay();
-  if (dayOfWeek === 2) return 4; // Tuesday: only 1 slot
-  return 8; // Other days: 2 slots
+  return SLOT_CAPACITY.maxPerDate; // 8 max for all days (2 slots × 4 max each)
 };
 
 export type Booking = {
