@@ -285,7 +285,6 @@ export const CATEGORIES = [
   "Installation Sisterlocks",
   "Installation Locks/ Microlocks avec extensions",
   "Resserrage",
-  "Défaire ses locks",
   "Palm Rolling",
 ];
 
