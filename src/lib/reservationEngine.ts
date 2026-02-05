@@ -314,7 +314,13 @@ export const getBookingsForDate = (date: Date): Booking[] => {
 // Check if a date is fully booked
 // Tuesday: 4 reservations max (1 slot)
 // Other days: 8 reservations max (2 slots)
+// PRIORITY RULE: Long services (12h-24h) block the entire date
 export const isDateFullyBooked = (date: Date): boolean => {
+  // PRIORITY: Check for long service bookings first
+  if (hasLongServiceBooking(date)) {
+    return true;
+  }
+  
   const totalReservations = getDateReservationCount(date);
   const maxCapacity = getMaxCapacityForDate(date);
   
@@ -326,6 +332,20 @@ export const isDateFullyBooked = (date: Date): boolean => {
   const allSlotsFull = slotsForDay.every((slot) => isSlotFull(date, slot));
   
   return allSlotsFull;
+};
+
+// Check if a service duration is considered "long" (12h to 24h)
+export const isLongService = (duration: ServiceDuration): boolean => {
+  const totalMinutes = (duration.days || 0) * 24 * 60 + duration.hours * 60 + duration.minutes;
+  const twelveHoursInMinutes = 12 * 60;
+  const twentyFourHoursInMinutes = 24 * 60;
+  return totalMinutes >= twelveHoursInMinutes && totalMinutes <= twentyFourHoursInMinutes;
+};
+
+// Check if a date has a long service booking (blocks the entire day)
+export const hasLongServiceBooking = (date: Date): boolean => {
+  const dateBookings = getBookingsForDate(date);
+  return dateBookings.some((booking) => isLongService(booking.duration));
 };
 
 // Calculate total duration for multiple services
@@ -357,5 +377,7 @@ export const ReservationAPI = {
   isSlotFull,
   getSlotsForDay,
   getMaxCapacityForDate,
+  isLongService,
+  hasLongServiceBooking,
   SLOT_CAPACITY,
 };
