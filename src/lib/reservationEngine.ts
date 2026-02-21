@@ -1,6 +1,7 @@
-// Reservation Engine with Staff Management and Booking Logic
+// Reservation Engine with Supabase persistence
 
 import { Service, ServiceDuration } from './serviceConfig';
+import { supabase } from '@/integrations/supabase/client';
 
 // Staff Configuration
 export const STAFF_CONFIG = {
@@ -32,35 +33,22 @@ export type TimeSlot = {
 // Slot capacity configuration
 export const SLOT_CAPACITY = {
   maxPerSlot: 4,
-  maxPerDate: 8, // Will be adjusted dynamically for Tuesdays (only 1 slot)
+  maxPerDate: 8,
   fixedSlots: ['08:30', '15:00'] as const,
   tuesdaySlot: '10:00' as const,
   tuesdaySlots: ['10:00', '15:00'] as const,
 };
 
 // Get available slots based on day of week
-// Tuesday (day 2): 10:00 and 15:00
-// Wednesday-Saturday (days 3-6): 08:30 and 15:00
 export const getSlotsForDay = (date: Date): string[] => {
   const dayOfWeek = date.getDay();
-  
-  // Tuesday = 2
-  if (dayOfWeek === 2) {
-    return [...SLOT_CAPACITY.tuesdaySlots]; // 10:00 and 15:00
-  }
-  
-  // Wednesday = 3, Thursday = 4, Friday = 5, Saturday = 6
-  if (dayOfWeek >= 3 && dayOfWeek <= 6) {
-    return [...SLOT_CAPACITY.fixedSlots]; // 08:30 and 15:00
-  }
-  
-  // Sunday (0) and Monday (1) are closed
+  if (dayOfWeek === 2) return [...SLOT_CAPACITY.tuesdaySlots];
+  if (dayOfWeek >= 3 && dayOfWeek <= 6) return [...SLOT_CAPACITY.fixedSlots];
   return [];
 };
 
-// Get max capacity for a date (8 for all working days - 2 slots each)
-export const getMaxCapacityForDate = (date: Date): number => {
-  return SLOT_CAPACITY.maxPerDate; // 8 max for all days (2 slots × 4 max each)
+export const getMaxCapacityForDate = (_date: Date): number => {
+  return SLOT_CAPACITY.maxPerDate;
 };
 
 export type Booking = {
@@ -84,8 +72,30 @@ export type CustomerInfo = {
   notes?: string;
 };
 
-// In-memory bookings store (in production, this would be in a database)
-const bookings: Booking[] = [];
+// DB row type
+type ReservationRow = {
+  id: string;
+  service_name: string;
+  service_category: string;
+  duration_hours: number;
+  duration_minutes: number;
+  reservation_date: string;
+  time_slot: string;
+  client_name: string;
+  client_phone: string;
+  client_notes: string | null;
+  client_photo_url: string | null;
+  is_long_service: boolean;
+  created_at: string;
+};
+
+// Helper: format date to YYYY-MM-DD
+const formatDate = (date: Date): string => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
 
 // Helper function to parse time string to minutes
 const timeToMinutes = (time: string): number => {
@@ -93,291 +103,251 @@ const timeToMinutes = (time: string): number => {
   return hours * 60 + minutes;
 };
 
-// Helper function to convert minutes to time string
 const minutesToTime = (minutes: number): string => {
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
   return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
 };
 
-// Calculate service end time
 export const calculateServiceEndTime = (startTime: string, duration: ServiceDuration): string => {
   const startMinutes = timeToMinutes(startTime);
   const durationMinutes = duration.hours * 60 + duration.minutes;
-  const endMinutes = startMinutes + durationMinutes;
-  return minutesToTime(endMinutes);
+  return minutesToTime(startMinutes + durationMinutes);
 };
 
-// Add minutes to a date/time (date carries the day, timeString is HH:MM)
-const addMinutesToDate = (date: Date, timeString: string, minutesToAdd: number): Date => {
-  const [hours, mins] = timeString.split(":").map(Number);
-  const d = new Date(date);
-  d.setHours(hours, mins, 0, 0);
-  d.setMinutes(d.getMinutes() + minutesToAdd);
-  return d;
+// ========== ASYNC Supabase functions ==========
+
+// Fetch reservations for a specific date from Supabase
+export const fetchReservationsForDate = async (date: Date): Promise<ReservationRow[]> => {
+  const dateStr = formatDate(date);
+  const { data, error } = await supabase
+    .from('reservations')
+    .select('*')
+    .eq('reservation_date', dateStr);
+  
+  if (error) {
+    console.error('Error fetching reservations:', error);
+    return [];
+  }
+  return (data || []) as ReservationRow[];
 };
 
-// Check if a staff member is booked at a specific time
-const isStaffBooked = (staffId: string, date: Date, startTime: string, duration: ServiceDuration): boolean => {
-  // Build Date objects for check interval
-  const checkStart = addMinutesToDate(date, startTime, 0);
-  const checkEnd = addMinutesToDate(date, startTime, duration.hours * 60 + duration.minutes);
-
-  return bookings.some((booking) => {
-    if (booking.assignedStaff !== staffId || booking.status === 'cancelled') {
-      return false;
-    }
-
-    // Booking interval (supports multi-day)
-    const bookingStart = addMinutesToDate(new Date(booking.date), booking.time, 0);
-    const bookingEnd = new Date(booking.endDate);
-
-    // Overlap if intervals intersect
-    return bookingStart < checkEnd && checkStart < bookingEnd;
-  });
-};
-
-// Get available staff for a specific time slot
-export const getAvailableStaffForSlot = (date: Date, startTime: string, duration: ServiceDuration): StaffMember[] => {
-  return STAFF_CONFIG.staffMembers.filter((staff) => {
-    return !isStaffBooked(staff.id, date, startTime, duration);
-  });
-};
-
-// Get reservation count for a specific slot
-export const getSlotReservationCount = (date: Date, slotTime: string): number => {
-  const dateBookings = getBookingsForDate(date);
-  return dateBookings.filter((booking) => booking.time === slotTime).length;
+// Get slot reservation count from DB
+export const getSlotReservationCountAsync = async (date: Date, slotTime: string): Promise<number> => {
+  const rows = await fetchReservationsForDate(date);
+  return rows.filter(r => r.time_slot === slotTime).length;
 };
 
 // Get total reservation count for a date
-export const getDateReservationCount = (date: Date): number => {
-  return getBookingsForDate(date).length;
+export const getDateReservationCountAsync = async (date: Date): Promise<number> => {
+  const rows = await fetchReservationsForDate(date);
+  return rows.length;
 };
 
-// Check if a specific slot is full (4 reservations max)
-export const isSlotFull = (date: Date, slotTime: string): boolean => {
-  return getSlotReservationCount(date, slotTime) >= SLOT_CAPACITY.maxPerSlot;
+// Check if a slot is full
+export const isSlotFullAsync = async (date: Date, slotTime: string): Promise<boolean> => {
+  const count = await getSlotReservationCountAsync(date, slotTime);
+  return count >= SLOT_CAPACITY.maxPerSlot;
 };
 
-// Generate time slots for a specific service and date
-// Tuesday: only 10:00 slot
-// Wednesday-Saturday: 08:30 and 15:00 slots
-export const getAvailableSlots = (service: Service, date: Date): TimeSlot[] => {
-  const slotsForDay = getSlotsForDay(date);
+// Check if date has a long service booking
+export const hasLongServiceBookingAsync = async (date: Date): Promise<boolean> => {
+  const rows = await fetchReservationsForDate(date);
+  return rows.some(r => r.is_long_service);
+};
+
+// Check if date is fully booked
+export const isDateFullyBookedAsync = async (date: Date): Promise<boolean> => {
+  const rows = await fetchReservationsForDate(date);
   
-  return slotsForDay.map((timeString) => {
-    const availableStaff = getAvailableStaffForSlot(date, timeString, service.duration);
-    const reservationCount = getSlotReservationCount(date, timeString);
+  // Priority: long service blocks the day
+  if (rows.some(r => r.is_long_service)) return true;
+  
+  const totalReservations = rows.length;
+  if (totalReservations >= SLOT_CAPACITY.maxPerDate) return true;
+  
+  const slotsForDay = getSlotsForDay(date);
+  const allSlotsFull = slotsForDay.every(slot => {
+    const count = rows.filter(r => r.time_slot === slot).length;
+    return count >= SLOT_CAPACITY.maxPerSlot;
+  });
+  
+  return allSlotsFull;
+};
+
+// Get available slots for a service on a date
+export const getAvailableSlotsAsync = async (service: Service, date: Date): Promise<TimeSlot[]> => {
+  const slotsForDay = getSlotsForDay(date);
+  const rows = await fetchReservationsForDate(date);
+  
+  return slotsForDay.map(timeString => {
+    const reservationCount = rows.filter(r => r.time_slot === timeString).length;
     const isFull = reservationCount >= SLOT_CAPACITY.maxPerSlot;
     
     return {
       time: timeString,
-      available: availableStaff.length > 0 && !isFull,
-      availableStaff: availableStaff.length,
-      highDemand: reservationCount >= 3 && !isFull, // 3/4 reservations = high demand
+      available: !isFull,
+      availableStaff: SLOT_CAPACITY.maxPerSlot - reservationCount,
+      highDemand: reservationCount >= 3 && !isFull,
       reservationCount,
       isFull,
     };
   });
 };
 
-// Assign first available staff member
-const assignStaff = (date: Date, startTime: string, duration: ServiceDuration): StaffMember | null => {
-  const availableStaff = getAvailableStaffForSlot(date, startTime, duration);
-  return availableStaff.length > 0 ? availableStaff[0] : null;
+// Check if a service is "long" (12h-24h)
+export const isLongService = (duration: ServiceDuration): boolean => {
+  const totalMinutes = (duration.days || 0) * 24 * 60 + duration.hours * 60 + duration.minutes;
+  return totalMinutes >= 12 * 60 && totalMinutes <= 24 * 60;
 };
 
-// Create a new reservation
-export const createReservation = (
+// Create a reservation in Supabase
+export const createReservationAsync = async (
   service: Service,
   date: Date,
   time: string,
   customer: CustomerInfo
-): Booking | null => {
-  const staff = assignStaff(date, time, service.duration);
+): Promise<boolean> => {
+  const longService = isLongService(service.duration);
   
-  if (!staff) {
-    return null; // No staff available
-  }
+  const { error } = await supabase
+    .from('reservations')
+    .insert({
+      service_name: service.name,
+      service_category: service.category,
+      duration_hours: service.duration.hours,
+      duration_minutes: service.duration.minutes,
+      reservation_date: formatDate(date),
+      time_slot: time,
+      client_name: customer.name,
+      client_phone: customer.phone,
+      client_notes: customer.notes || null,
+      client_photo_url: customer.photo || null,
+      is_long_service: longService,
+    });
   
-  const endTime = calculateServiceEndTime(time, service.duration);
-  // Compute endDate (exact Date object) by adding duration minutes to start datetime
-  const durationMinutes = service.duration.hours * 60 + service.duration.minutes;
-  const endDateObj = addMinutesToDate(date, time, durationMinutes);
-
-  const booking: Booking = {
-    id: `booking_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    service,
-    date,
-    time,
-    endDate: endDateObj,
-    endTime,
-    duration: service.duration,
-    customer,
-    assignedStaff: staff.id,
-    status: 'confirmed',
-    createdAt: new Date(),
-  };
-  
-  bookings.push(booking);
-  return booking;
-};
-
-// Get total available staff for a date
-export const getAvailableStaffCountForDate = (date: Date): number => {
-  // Check how many staff members have at least one free slot during the day
-  const workingStart = timeToMinutes(STAFF_CONFIG.workingHours.start);
-  const workingEnd = timeToMinutes(STAFF_CONFIG.workingHours.end);
-  
-  const availableStaff = STAFF_CONFIG.staffMembers.filter((staff) => {
-    // Check if staff has any free time during the day
-    for (let time = workingStart; time < workingEnd; time += 30) {
-      const timeString = minutesToTime(time);
-      if (!isStaffBooked(staff.id, date, timeString, { hours: 0, minutes: 30 })) {
-        return true;
-      }
-    }
+  if (error) {
+    console.error('Error creating reservation:', error);
     return false;
-  });
-  
-  return availableStaff.length;
-};
-
-// Generate WhatsApp message for booking
-export const generateWhatsAppMessage = (booking: Booking): string => {
-  const dateStr = booking.date.toLocaleDateString('fr-FR', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-  const durationText = booking.duration.days ? `${booking.duration.days} jour${booking.duration.days > 1 ? 's' : ''}` : `${booking.duration.hours}h${booking.duration.minutes > 0 ? booking.duration.minutes : ''}`;
-  // If booking ends on a different day, include end date in the message
-  const endDateDifferent = booking.endDate && (
-    booking.endDate.getFullYear() !== booking.date.getFullYear() ||
-    booking.endDate.getMonth() !== booking.date.getMonth() ||
-    booking.endDate.getDate() !== booking.date.getDate()
-  );
-
-  const endDateStr = booking.endDate.toLocaleDateString('fr-FR', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-
-  const dateLine = endDateDifferent ? `📅 *Date :* ${dateStr} → ${endDateStr}` : `📅 *Date :* ${dateStr}`;
-
-  const message = `✨ *Nouvelle réservation Carlita Locks*\n\n👤 *Client :* ${booking.customer.name}\n📱 *WhatsApp :* ${booking.customer.phone}\n\n💇‍♀️ *Service :* ${booking.service.name}\n💰 *Prix :* ${booking.service.price}\n⏱️ *Durée :* ${durationText}\n\n${dateLine}\n🕐 *Heure :* ${booking.time} - ${booking.endTime}\n\n👩‍🔧 *Coiffeuse assignée :* ${booking.assignedStaff}\n\n${booking.customer.photo ? '📷 *Photo jointe :* Oui' : ''}\n${booking.customer.notes ? `📝 *Notes :* ${booking.customer.notes}` : ''}\n\n—————————————\nID: ${booking.id}\nStatut: ${booking.status === 'confirmed' ? '✅ Confirmé' : '⏳ En attente'}`;
-
-  return message;
-};
-
-// Send WhatsApp notification
-export const sendWhatsAppNotification = (booking: Booking): void => {
-  const BUSINESS_PHONE = '22897564646'; // Carlita Locks business number
-  const message = generateWhatsAppMessage(booking);
-  const whatsappUrl = `https://wa.me/${BUSINESS_PHONE}?text=${encodeURIComponent(message)}`;
-  
-  // Open WhatsApp
-  window.open(whatsappUrl, '_blank');
-};
-
-// Cancel a booking
-export const cancelBooking = (bookingId: string): boolean => {
-  const booking = bookings.find((b) => b.id === bookingId);
-  if (booking) {
-    booking.status = 'cancelled';
-    return true;
   }
-  return false;
+  return true;
 };
 
-// Get all bookings for a date
-export const getBookingsForDate = (date: Date): Booking[] => {
-  return bookings.filter((booking) => {
-    if (booking.status === 'cancelled') return false;
-    const targetStart = new Date(date);
-    targetStart.setHours(0, 0, 0, 0);
-    const targetEnd = new Date(date);
-    targetEnd.setHours(23, 59, 59, 999);
-
-    const bookingStart = addMinutesToDate(new Date(booking.date), booking.time, 0);
-    const bookingEnd = new Date(booking.endDate);
-
-    // Return bookings that overlap the target date
-    return bookingStart <= targetEnd && bookingEnd >= targetStart;
-  });
+// Get available staff count for a date (simplified: based on remaining capacity)
+export const getAvailableStaffCountForDateAsync = async (date: Date): Promise<number> => {
+  const isBooked = await isDateFullyBookedAsync(date);
+  if (isBooked) return 0;
+  return STAFF_CONFIG.totalStaff;
 };
 
-// Check if a date is fully booked
-// Tuesday: 4 reservations max (1 slot)
-// Other days: 8 reservations max (2 slots)
-// PRIORITY RULE: Long services (12h-24h) block the entire date
-export const isDateFullyBooked = (date: Date): boolean => {
-  // PRIORITY: Check for long service bookings first
-  if (hasLongServiceBooking(date)) {
-    return true;
+// ========== Synchronous wrappers (kept for calendar disabled logic using cached data) ==========
+
+// Cache for calendar rendering - populated by prefetch
+let _cachedReservations: Map<string, ReservationRow[]> = new Map();
+
+export const prefetchReservationsForMonth = async (year: number, month: number) => {
+  const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+  const endDay = new Date(year, month + 1, 0).getDate();
+  const endDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(endDay).padStart(2, '0')}`;
+  
+  const { data, error } = await supabase
+    .from('reservations')
+    .select('*')
+    .gte('reservation_date', startDate)
+    .lte('reservation_date', endDate);
+  
+  if (error) {
+    console.error('Error prefetching:', error);
+    return;
   }
   
-  const totalReservations = getDateReservationCount(date);
-  const maxCapacity = getMaxCapacityForDate(date);
-  
-  // Date is full if we have reached max capacity
-  if (totalReservations >= maxCapacity) return true;
-  
-  // Also check if all slots for this day are individually full
+  // Group by date
+  _cachedReservations = new Map();
+  (data || []).forEach((row: ReservationRow) => {
+    const existing = _cachedReservations.get(row.reservation_date) || [];
+    existing.push(row);
+    _cachedReservations.set(row.reservation_date, existing);
+  });
+};
+
+// Sync functions using cache (for calendar rendering)
+export const getAvailableStaffCountForDate = (date: Date): number => {
+  const dateStr = formatDate(date);
+  const rows = _cachedReservations.get(dateStr) || [];
+  if (rows.some(r => r.is_long_service)) return 0;
+  if (rows.length >= SLOT_CAPACITY.maxPerDate) return 0;
   const slotsForDay = getSlotsForDay(date);
-  const allSlotsFull = slotsForDay.every((slot) => isSlotFull(date, slot));
-  
-  return allSlotsFull;
+  const allFull = slotsForDay.every(slot => rows.filter(r => r.time_slot === slot).length >= SLOT_CAPACITY.maxPerSlot);
+  if (allFull) return 0;
+  return STAFF_CONFIG.totalStaff;
 };
 
-// Check if a service duration is considered "long" (12h to 24h)
-export const isLongService = (duration: ServiceDuration): boolean => {
-  const totalMinutes = (duration.days || 0) * 24 * 60 + duration.hours * 60 + duration.minutes;
-  const twelveHoursInMinutes = 12 * 60;
-  const twentyFourHoursInMinutes = 24 * 60;
-  return totalMinutes >= twelveHoursInMinutes && totalMinutes <= twentyFourHoursInMinutes;
+export const isDateFullyBooked = (date: Date): boolean => {
+  return getAvailableStaffCountForDate(date) === 0;
 };
 
-// Check if a date has a long service booking (blocks the entire day)
 export const hasLongServiceBooking = (date: Date): boolean => {
-  const dateBookings = getBookingsForDate(date);
-  return dateBookings.some((booking) => isLongService(booking.duration));
+  const dateStr = formatDate(date);
+  const rows = _cachedReservations.get(dateStr) || [];
+  return rows.some(r => r.is_long_service);
+};
+
+// WhatsApp notification
+export const generateWhatsAppMessage = (
+  service: Service,
+  date: Date,
+  time: string,
+  customer: CustomerInfo
+): string => {
+  const dateStr = date.toLocaleDateString('fr-FR', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+  });
+  const endTime = calculateServiceEndTime(time, service.duration);
+  const durationText = service.duration.days 
+    ? `${service.duration.days} jour${service.duration.days > 1 ? 's' : ''}` 
+    : `${service.duration.hours}h${service.duration.minutes > 0 ? service.duration.minutes : ''}`;
+
+  return `✨ *Nouvelle réservation Carlita Locks*\n\n👤 *Client :* ${customer.name}\n📱 *WhatsApp :* ${customer.phone}\n\n💇‍♀️ *Service :* ${service.name}\n💰 *Prix :* ${service.price}\n⏱️ *Durée :* ${durationText}\n\n📅 *Date :* ${dateStr}\n🕐 *Heure :* ${time} - ${endTime}\n\n${customer.photo ? '📷 *Photo jointe :* Oui' : ''}\n${customer.notes ? `📝 *Notes :* ${customer.notes}` : ''}\n\nStatut: ✅ Confirmé`;
+};
+
+export const sendWhatsAppNotification = (
+  service: Service,
+  date: Date,
+  time: string,
+  customer: CustomerInfo
+): void => {
+  const BUSINESS_PHONE = '22897564646';
+  const message = generateWhatsAppMessage(service, date, time, customer);
+  const whatsappUrl = `https://wa.me/${BUSINESS_PHONE}?text=${encodeURIComponent(message)}`;
+  window.open(whatsappUrl, '_blank');
 };
 
 // Calculate total duration for multiple services
 export const calculateTotalDuration = (services: Service[]): ServiceDuration => {
   let totalMinutes = 0;
-  
-  services.forEach((service) => {
-    totalMinutes += service.duration.hours * 60 + service.duration.minutes;
+  services.forEach(s => {
+    totalMinutes += s.duration.hours * 60 + s.duration.minutes;
   });
-  
   return {
     hours: Math.floor(totalMinutes / 60),
     minutes: totalMinutes % 60,
   };
 };
 
-// Export API for UI integration
-export const ReservationAPI = {
-  getAvailableSlots,
-  createReservation,
-  sendWhatsAppNotification,
-  getAvailableStaffCountForDate,
-  cancelBooking,
-  getBookingsForDate,
-  calculateTotalDuration,
-  isDateFullyBooked,
-  getSlotReservationCount,
-  getDateReservationCount,
-  isSlotFull,
-  getSlotsForDay,
-  getMaxCapacityForDate,
-  isLongService,
-  hasLongServiceBooking,
-  SLOT_CAPACITY,
+// Subscribe to realtime changes
+export const subscribeToReservations = (callback: () => void) => {
+  const channel = supabase
+    .channel('reservations-changes')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'reservations' },
+      () => callback()
+    )
+    .subscribe();
+  
+  return () => {
+    supabase.removeChannel(channel);
+  };
 };
+
+export const SLOT_CAPACITY_EXPORT = SLOT_CAPACITY;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
@@ -7,19 +7,20 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Service, formatDuration } from "@/lib/serviceConfig";
 import { 
-  getAvailableSlots, 
-  getAvailableStaffCountForDate, 
-  createReservation, 
+  getAvailableSlotsAsync, 
+  createReservationAsync, 
   sendWhatsAppNotification,
   calculateTotalDuration,
   isDateFullyBooked,
-  getSlotsForDay,
   hasLongServiceBooking,
+  getAvailableStaffCountForDate,
+  prefetchReservationsForMonth,
+  subscribeToReservations,
   TimeSlot,
   SLOT_CAPACITY
 } from "@/lib/reservationEngine";
 import { Calendar as CalendarIcon, Clock, User, Phone, Upload, Flame, CheckCircle2 } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger, DialogOverlay, DialogClose, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -44,25 +45,41 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
   const [photo, setPhoto] = useState<File | null>(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [openInfoDialog, setOpenInfoDialog] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [calendarKey, setCalendarKey] = useState(0);
 
   const totalDuration = calculateTotalDuration(selectedServices);
   const requiresPhoto = selectedServices.some((s) => s.requiresPhoto);
 
-  const handleDateSelect = (date: Date | undefined) => {
+  // Prefetch reservations for current month on mount + realtime
+  const refreshData = useCallback(async () => {
+    const now = new Date();
+    await prefetchReservationsForMonth(now.getFullYear(), now.getMonth());
+    // Also prefetch next month
+    const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    await prefetchReservationsForMonth(next.getFullYear(), next.getMonth());
+    setCalendarKey(k => k + 1); // force calendar re-render
+  }, []);
+
+  useEffect(() => {
+    refreshData();
+    const unsub = subscribeToReservations(refreshData);
+    return unsub;
+  }, [refreshData]);
+
+  const handleDateSelect = async (date: Date | undefined) => {
     setSelectedDate(date);
     setSelectedTime("");
     
     if (date && selectedServices.length > 0) {
-      const slots = getAvailableSlots(selectedServices[0], date);
+      const slots = await getAvailableSlotsAsync(selectedServices[0], date);
       setAvailableSlots(slots);
       
       const dayOfWeek = date.getDay();
       
-      // Tuesday: two slots (10:00 and 15:00), auto-switch logic
       if (dayOfWeek === 2) {
         const slot1000 = slots.find(s => s.time === '10:00');
         const slot1500 = slots.find(s => s.time === '15:00');
-        
         if (slot1000?.isFull && slot1500?.available) {
           setSelectedTime('15:00');
           toast.success(`Date sélectionnée: ${date.toLocaleDateString("fr-FR")} - Créneau 15:00 auto-sélectionné`);
@@ -70,10 +87,8 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
           toast.success(`Date sélectionnée: ${date.toLocaleDateString("fr-FR")}`);
         }
       } else {
-        // Wednesday-Saturday: auto-switch logic for 08:30 and 15:00
         const slot830 = slots.find(s => s.time === '08:30');
         const slot1500 = slots.find(s => s.time === '15:00');
-        
         if (slot830?.isFull && slot1500?.available) {
           setSelectedTime('15:00');
           toast.success(`Date sélectionnée: ${date.toLocaleDateString("fr-FR")} - Créneau 15:00 auto-sélectionné`);
@@ -87,8 +102,6 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
   const handleTimeSelect = (time: string) => {
     setSelectedTime(time);
     toast.success(`Heure sélectionnée: ${time}`);
-    // On small screens, open the client info dialog automatically so the user
-    // doesn't need to scroll to fill their details.
     if (typeof window !== "undefined" && window.innerWidth < 768) {
       setOpenInfoDialog(true);
     }
@@ -101,11 +114,58 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!selectedDate || !selectedTime || !clientName || !whatsappNumber) {
+      toast.error("Veuillez remplir tous les champs requis");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      let allSuccess = true;
+      for (const service of selectedServices) {
+        const success = await createReservationAsync(
+          service,
+          selectedDate,
+          selectedTime,
+          {
+            name: clientName,
+            phone: whatsappNumber,
+            notes,
+            photo: photo ? URL.createObjectURL(photo) : undefined,
+          }
+        );
+        if (!success) allSuccess = false;
+      }
+
+      if (allSuccess) {
+        // Send WhatsApp for first service
+        sendWhatsAppNotification(selectedServices[0], selectedDate, selectedTime, {
+          name: clientName,
+          phone: whatsappNumber,
+          notes,
+          photo: photo ? URL.createObjectURL(photo) : undefined,
+        });
+        setIsConfirmed(true);
+        toast.success("Réservation créée avec succès!");
+      } else {
+        toast.error("Erreur lors de la création de la réservation");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erreur lors de la création de la réservation");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const renderClientForm = () => (
     <Card className="rounded-[24px]">
       <CardContent className="p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name */}
           <div className="space-y-2">
             <Label htmlFor="name" className="flex items-center gap-2">
               <User className="w-4 h-4 text-primary" />
@@ -121,7 +181,6 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
             />
           </div>
 
-          {/* WhatsApp Number */}
           <div className="space-y-2">
             <Label htmlFor="phone" className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-primary" />
@@ -138,7 +197,6 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
             />
           </div>
 
-          {/* Photo Upload */}
           {requiresPhoto && (
             <div className="space-y-2">
               <Label htmlFor="photo" className="flex items-center gap-2">
@@ -158,7 +216,6 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
             </div>
           )}
 
-          {/* Notes */}
           <div className="space-y-2">
             <Label htmlFor="notes">Notes (optionnel)</Label>
             <Textarea
@@ -170,54 +227,17 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
             />
           </div>
 
-          {/* Submit Button */}
           <Button
             type="submit"
+            disabled={isSubmitting}
             className="w-full h-14 rounded-xl text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
           >
-            Confirmer la réservation
+            {isSubmitting ? "Réservation en cours..." : "Confirmer la réservation"}
           </Button>
         </form>
       </CardContent>
     </Card>
   );
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!selectedDate || !selectedTime || !clientName || !whatsappNumber) {
-      toast.error("Veuillez remplir tous les champs requis");
-      return;
-    }
-
-    // Photo is now optional - no validation needed
-
-    // Create booking for each service
-    selectedServices.forEach((service) => {
-      const booking = createReservation(
-        service,
-        selectedDate,
-        selectedTime,
-        {
-          name: clientName,
-          phone: whatsappNumber,
-          notes,
-          photo: photo ? URL.createObjectURL(photo) : undefined,
-        }
-      );
-
-      if (booking) {
-        sendWhatsAppNotification(booking);
-      }
-    });
-
-    setIsConfirmed(true);
-    toast.success("Réservation créée avec succès!");
-  };
-
-  const getAvailabilityForDate = (date: Date): number => {
-    return getAvailableStaffCountForDate(date);
-  };
 
   if (isConfirmed) {
     return (
@@ -293,18 +313,18 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
 
           <Card className="rounded-[24px] p-6">
             <Calendar
+              key={calendarKey}
               mode="single"
               selected={selectedDate}
               onSelect={handleDateSelect}
               disabled={(date) => {
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-                // Disable past dates, Sundays (0), Mondays (1), fully booked days, and dates with max bookings
-                return date < today || date.getDay() === 0 || date.getDay() === 1 || getAvailabilityForDate(date) === 0 || isDateFullyBooked(date);
+                return date < today || date.getDay() === 0 || date.getDay() === 1 || getAvailableStaffCountForDate(date) === 0 || isDateFullyBooked(date);
               }}
               className={cn("mx-auto pointer-events-auto")}
               modifiers={{
-                available: (date) => getAvailabilityForDate(date) > 0 && date.getDay() !== 1,
+                available: (date) => getAvailableStaffCountForDate(date) > 0 && date.getDay() !== 1,
                 sunday: (date) => date.getDay() === 0,
                 monday: (date) => date.getDay() === 1,
               }}
@@ -346,7 +366,7 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
             </div>
           </Card>
 
-          {/* Time Selection (keeps near the calendar so user doesn't need to scroll far) */}
+          {/* Time Selection */}
           {selectedDate && availableSlots.length > 0 && !hasLongServiceBooking(selectedDate) && (
             <section className="animate-fade-in">
               <div className="text-center mb-4">
@@ -388,7 +408,6 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
                 ))}
               </div>
 
-              {/* Mobile: button to open client info dialog */}
               {selectedTime && (
                 <div className="mt-4 md:hidden flex justify-center">
                   <Dialog open={openInfoDialog} onOpenChange={(open) => setOpenInfoDialog(open)}>
@@ -408,7 +427,6 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
             </section>
           )}
 
-          {/* Message when date is blocked by a long service */}
           {selectedDate && hasLongServiceBooking(selectedDate) && (
             <Card className="rounded-[24px] bg-destructive/10 border-destructive/20 animate-fade-in">
               <CardContent className="p-6 text-center">
@@ -443,8 +461,6 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
           )}
         </div>
       </div>
-
-      
     </div>
   );
 };
