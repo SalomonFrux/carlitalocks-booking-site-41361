@@ -316,7 +316,7 @@ export const sendWhatsAppNotification = (
   time: string,
   customer: CustomerInfo
 ): void => {
-  const BUSINESS_PHONE = '22897564646';
+  const BUSINESS_PHONE = '22890583350';
   const message = generateWhatsAppMessage(service, date, time, customer);
   const whatsappUrl = `https://wa.me/${BUSINESS_PHONE}?text=${encodeURIComponent(message)}`;
   window.open(whatsappUrl, '_blank');
