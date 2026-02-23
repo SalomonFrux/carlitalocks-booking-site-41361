@@ -324,14 +324,20 @@ const SchedulingInterface = ({ selectedServices, onBack }: SchedulingInterfacePr
               }}
               className={cn("mx-auto pointer-events-auto")}
               modifiers={{
-                available: (date) => getAvailableStaffCountForDate(date) > 0 && date.getDay() !== 1,
+                available: (date) => getAvailableStaffCountForDate(date) > 0 && date.getDay() !== 1 && !isDateFullyBooked(date),
                 sunday: (date) => date.getDay() === 0,
                 monday: (date) => date.getDay() === 1,
+                fullyBooked: (date) => {
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  return date >= today && date.getDay() !== 0 && date.getDay() !== 1 && isDateFullyBooked(date);
+                },
               }}
               modifiersClassNames={{
                 available: "bg-primary/10 font-semibold",
                 sunday: "text-red-500",
                 monday: "text-red-500 line-through",
+                fullyBooked: "line-through text-muted-foreground opacity-50",
               }}
             />
 
